@@ -1,0 +1,360 @@
+{
+  "krx": [
+    {
+      "question": "Which stocks have the highest momentum potential today? (오늘 모멘텀 상위 종목은?)",
+      "answer": "**Answer**: 모멘텀 종목 (Transition regime + Above BB)\n\n| Rank | Ticker | Score | Dev_BB_Pct | Key Themes |\n|------|--------|-------|------------|------------|\n| 1 | 포스코퓨처엠 | 90 | 3.09% | 리튬, 2차전지, 밸류업 |\n| 2 | 강원에너지 | 90 | 1.21% | 2차전지, 리튬, 전기차, 원자력 |\n| 3 | 신흥에스이씨 | 80 | 4.31% | 전기차 화재방지, 2차전지 |\n| 4 | 에이티넘인베스트 | 75 | 4.74% | 창투사, 두나무, 가상화폐 |\n| 5 | 현우산업 | 75 | 4.33% | PCB(FPCB 등) |\n\n**Source**: `/mnt/nas/AutoGluon/AutoML_Krx/superTrend/daily_top_picks_2026-01-28.csv`\n\n---"
+    },
+    {
+      "question": "What are the top picks in 2차전지/EV battery sector?",
+      "answer": "**Answer**: 3 stocks with strong EV/battery exposure\n\n| Ticker | Score | Specific Themes |\n|--------|-------|-----------------|\n| 포스코퓨처엠 | 90 | 리튬, 2차전지, 2차전지(소재/부품) |\n| 강원에너지 | 90 | 2차전지(장비), 리튬, 전기차 |\n| 신흥에스이씨 | 80 | 전기차 화재 방지, 2차전지(소재/부품) |\n\n---"
+    },
+    {
+      "question": "Which stocks are central players in currently trending themes?",
+      "answer": "**Answer**: Top 10 by PageRank centrality in TIER 1 themes\n\n| Ticker | PageRank | Theme | Role |\n|--------|----------|-------|------|\n| LG유플러스 | 26.4 | 통신 | Theme leader |\n| SK텔레콤 | 21.3 | 통신 | Major player |\n| KT | 20.3 | 통신 | Major player |\n| LG | 19.9 | 통신, 스페이스X | Multi-theme hub |\n| SK | 19.8 | 통신, 증권 | Multi-theme hub |\n| 미래에셋증권 | 12.1 | 증권, 스페이스X | Cross-sector |\n| 우리금융지주 | 11.2 | 은행 | Sector leader |\n| 하나금융지주 | 10.4 | 은행 | Major player |\n| 기업은행 | 10.3 | 은행 | Major player |\n| 신한지주 | 10.1 | 은행 | Major player |\n\n**Source**: `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/data/tier1_key_players_20260129.json`\n\n---"
+    },
+    {
+      "question": "Which telecom stocks have highest network influence?",
+      "answer": "**Answer**: 통신 theme PageRank ranking\n\n| Rank | Ticker | PageRank | Notes |\n|------|--------|----------|-------|\n| 1 | LG유플러스 | 26.4 | Highest centrality |\n| 2 | SK텔레콤 | 21.3 | Strong position |\n| 3 | KT | 20.3 | Stable player |\n| 4 | LG | 19.9 | Holding company exposure |\n| 5 | SK | 19.8 | Holding company exposure |\n\n---"
+    },
+    {
+      "question": "Which bank stocks are most influential in the sector?",
+      "answer": "**Answer**: 은행 theme PageRank ranking\n\n| Rank | Ticker | PageRank | Notes |\n|------|--------|----------|-------|\n| 1 | 우리금융지주 | 11.2 | Top bank holding |\n| 2 | 하나금융지주 | 10.4 | Major player |\n| 3 | 기업은행 | 10.3 | Government-backed |\n| 4 | 신한지주 | 10.1 | Established player |\n| 5 | iM금융지주 | 10.0 | Regional strength |\n| 6 | BNK금융지주 | 9.1 | Regional bank |\n| 7 | 제주은행 | 9.1 | Regional bank |\n\n---\n\n## Theme/Sector Analysis Questions"
+    },
+    {
+      "question": "Which themes have strongest cohesion? (군집성이 가장 강한 테마는?)",
+      "answer": "**Answer**: Fiedler eigenvalue 기준 순위 (높을수록 군집성 강함)\n\n| Rank | Theme | Fiedler | Interpretation |\n|------|-------|---------|----------------|\n| 1 | 은행 | 3.728 | Very strong - stocks move together |\n| 2 | 방위산업/전쟁 및 테러 | 3.629 | Very strong cohesion |\n| 3 | 증권 | 3.518 | Very strong cohesion |\n| 4 | 전력설비 | 2.703 | Strong cohesion |\n| 5 | 통신 | 0.700 | Moderate cohesion |\n| 6 | 스페이스X(SpaceX) | 0.566 | Weaker cohesion |\n\n**군집성 해석 가이드**:\n- Fiedler > 3.0: 매우 강함 (테마 내 높은 상관관계)\n- Fiedler 1.0-3.0: 강함\n- Fiedler 0.5-1.0: 보통\n- Fiedler < 0.5: 약함 (분산된 테마)\n\n**Source**: Computed this session using `analyze_naver_theme_cohesion.py` methodology\n\n---"
+    },
+    {
+      "question": "Which TIER 1 themes should I focus on? (어떤 TIER 1 테마에 집중해야 하나?)",
+      "answer": "**Answer**: 메타 레이블링 필터 통과 6개 테마\n\n| Theme | Fiedler | Confidence | Recommendation |\n|-------|---------|------------|----------------|\n| 통신 | 0.700 | 62.5% | Focus - stable sector rotation play |\n| 방위산업/전쟁 및 테러 | 3.629 | 62.5% | Focus - strong cohesion |\n| 전력설비 | 2.703 | 62.5% | Focus - infrastructure theme |\n| 증권 | 3.518 | 62.5% | Focus - financial sector |\n| 은행 | 3.728 | 62.5% | Focus - highest cohesion |\n| 스페이스X(SpaceX) | 0.566 | 62.5% | Selective - weaker cohesion |\n\n---"
+    },
+    {
+      "question": "Which themes failed quality filtering? (회피해야 할 테마는?)",
+      "answer": "**Answer**: 메타 레이블링 필터링된 4개 테마\n\n| Theme | Reason | Action |\n|-------|--------|--------|\n| 로봇 | Low signal quality | Avoid or reduce exposure |\n| 3D 낸드 | Low signal quality | Avoid or reduce exposure |\n| 우주항공산업 | Low signal quality | Avoid or reduce exposure |\n| 풍력에너지 | Low signal quality | Avoid or reduce exposure |\n\n**Note**: These themes may have momentum but historical signal quality is poor.\n\n**Source**: `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/data/meta_labeling_results_20260129.csv`\n\n---"
+    },
+    {
+      "question": "What's the current market regime?",
+      "answer": "**Answer**: From pre-computed regime analysis (2026-01-28)\n\nRefer to: `/mnt/nas/AutoGluon/AutoML_Krx/regime/results/regime_theme_report_2026-01-28.md`\n\n**Note**: HMM regime detection was NOT run this session. Use the linked report for current regime state.\n\n---\n\n## Risk Assessment Questions"
+    },
+    {
+      "question": "Which signals are low quality? (저품질 시그널은?)",
+      "answer": "**Answer**: 메타 레이블링 필터로 26개 중 4개 제외 (15.4%)\n\n| Filtered Theme | Pass Rate |\n|----------------|-----------|\n| 로봇 | Failed |\n| 3D 낸드 | Failed |\n| 우주항공산업 | Failed |\n| 풍력에너지 | Failed |\n\n**Overall**: 22/26 passed (84.6% pass rate)\n\n---"
+    },
+    {
+      "question": "How far above Bollinger Band are momentum stocks? (모멘텀 종목의 BB 이탈 정도는?)",
+      "answer": "**Answer**: Dev_BB_Pct가 모멘텀 강도를 나타냄\n\n| 리스크 수준 | Dev_BB_Pct | 종목 |\n|-------------|------------|------|\n| 높은 모멘텀 (고위험) | 4-5% | 에이티넘인베스트 (4.74%), 현우산업 (4.33%), 신흥에스이씨 (4.31%) |\n| 보통 모멘텀 | 3-4% | 공구우먼 (4.04%), 리가켐바이오 (3.58%), 코메론 (3.22%), 포스코퓨처엠 (3.09%) |\n| 낮은 모멘텀 (저위험) | 1-2% | 우정바이오 (1.63%), 영풍 (1.31%), 강원에너지 (1.21%) |\n\n**해석**: Dev_BB_Pct가 높을수록 모멘텀은 강하지만 과열 가능성도 있음\n\n---"
+    },
+    {
+      "question": "Which themes have weak cohesion? (군집성이 약한 테마는?)",
+      "answer": "**Answer**: Fiedler < 1.0인 테마\n\n| 테마 | Fiedler | 리스크 |\n|------|---------|--------|\n| 스페이스X(SpaceX) | 0.566 | 종목이 함께 움직이지 않을 수 있음 |\n| 통신 | 0.700 | 다소 분산됨 |\n\n**시사점**: 테마 기반 포지션은 개별 종목 리스크가 높을 수 있음\n\n---\n\n## Historical Performance Questions"
+    },
+    {
+      "question": "What's the expected return for momentum stage? (모멘텀 단계 기대수익률은?)",
+      "answer": "**Answer**: 백테스트 기준 (2024-01-05 ~ 2025-12-16)\n\n| 지표 | 값 |\n|------|-----|\n| 평균 수익률 (20일) | +7.93% |\n| 승률 | 43.0% |\n| 표본 수 | 172 거래 |\n\n**대시보드**: 모멘텀 탭 → 단계별 기대수익 차트 참조\n**Source**: `/mnt/nas/AutoGluon/AutoML_Krx/superTrend/backtest_results_sample.csv`\n\n---"
+    },
+    {
+      "question": "How does Transition regime perform historically?",
+      "answer": "**Answer**: Transition regime performance\n\n| Metric | Value |\n|--------|-------|\n| Average Return (20D) | +4.24% |\n| Win Rate | 40.9% |\n| Sample Size | 556 trades |\n\n---"
+    },
+    {
+      "question": "What stages should I avoid?",
+      "answer": "**Answer**: Negative expected return stages\n\n| Stage | Return (20D) | Win Rate | Recommendation |\n|-------|--------------|----------|----------------|\n| Bear Volatile | -7.23% | 28.6% | **Avoid** |\n| Super Trend (in Bear) | -0.39% | 37.1% | Caution |\n| Bear Quiet | -2.15% | 33.2% | Avoid |\n\n---\n\n## Portfolio Construction Questions"
+    },
+    {
+      "question": "How to prioritize between momentum and sector rotation?",
+      "answer": "**Answer**: Use priority tiers\n\n| Priority | Strategy | Tickers | Rationale |\n|----------|----------|---------|-----------|\n| HIGH | Early Breakout (Momentum) | 10 tickers | Higher expected return (+7.93%) |\n| MEDIUM | Sector Rotation (Key Players) | 15 tickers | Stable, theme-driven |\n\n**Suggested Allocation**:\n- 60-70% to HIGH priority (momentum)\n- 30-40% to MEDIUM priority (sector rotation)\n\n---"
+    },
+    {
+      "question": "Which themes overlap (diversification risk)?",
+      "answer": "**Answer**: Multi-theme stocks to watch\n\n| Ticker | Themes | Risk |\n|--------|--------|------|\n| LG | 통신, 스페이스X | Correlated exposure |\n| SK | 통신, 증권 | Correlated exposure |\n| 미래에셋증권 | 증권, 스페이스X | Correlated exposure |\n| 켄코아에어로스페이스 | 방위산업, 스페이스X | Correlated exposure |\n\n**Implication**: Holding multiple overlapping stocks reduces diversification benefit\n\n---"
+    },
+    {
+      "question": "How many stocks passed all quality filters? (품질 필터 통과 종목 수는?)",
+      "answer": "**Answer**: 필터링 단계별 현황\n\n| 단계 | 수량 | 통과율 |\n|------|------|--------|\n| 초기 시그널 | 26 | 100% |\n| 메타 레이블링 후 | 22 | 84.6% |\n| TIER 1 (최고 품질) | 6개 테마 | 23.1% |\n\n**대시보드**: 시그널 탭 → 통과율 게이지 참조\n\n---\n\n## Questions NOT Answerable (Need Additional Analysis)\n\n| Question | Missing Data | How to Get |\n|----------|--------------|------------|\n| What's the exact current HMM regime state? | Need to run HMM | Run regime detection pipeline |\n| Price targets / stop-loss levels? | Price data, volatility | Technical analysis |\n| Optimal position sizing? | Portfolio constraints | Portfolio optimization |\n| Cross-market correlation (US/KRX)? | US market data | Run cross-validate skill |\n| Earnings/fundamental analysis? | Financial statements | Fundamental data source |\n| Liquidity/volume analysis? | Trading volume | Market data API |\n| Intraday entry timing? | Intraday data | Real-time data feed |\n\n---\n\n## Quick Reference: Data File Locations\n\n| Data | File Path |\n|------|-----------|\n| Actionable tickers | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/data/actionable_tickers_20260129.csv` |\n| Consolidated analysis | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/data/consolidated_ticker_analysis_20260129.json` |\n| Key players | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/data/tier1_key_players_20260129.json` |\n| Meta-labeling results | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/data/meta_labeling_results_20260129.csv` |\n| Regime report | `/mnt/nas/AutoGluon/AutoML_Krx/regime/results/regime_theme_report_2026-01-28.md` |\n| Backtest results | `/mnt/nas/AutoGluon/AutoML_Krx/superTrend/backtest_results_sample.csv` |\n\n---\n\n---\n\n## Dashboard Navigation / 대시보드 안내\n\n| Tab | URL | Key Feature |\n|-----|-----|-------------|\n| 개요 (Overview) | http://localhost:8000/ | 전체 현황 요약, 모멘텀 종목, 테마 군집성 |\n| 모멘텀 (Momentum) | http://localhost:8000/breakout.html | 단계별 분포, 기대수익, 관심주 |\n| 시그널 (Signals) | http://localhost:8000/signals.html | 메타 레이블링 통과율, 테마별 시그널 |\n| 군집성 (Cohesion) | http://localhost:8000/cohesion.html | 테마 군집성 분석, 상승/하락 TOP 5 |\n| 네트워크 (Network) | http://localhost:8000/theme-graph.html | 테마 네트워크 시각화, 부분 검색 지원 |\n\n**언어 전환**: 우측 상단 KOR/ENG 토글로 한/영 전환 가능\n\n---\n\n*Generated: 2026-01-29 (Updated: 2026-01-30)*\n*Analysis Framework: Sector-Rotation-KRX*\n*Dashboard: KOR/ENG i18n 지원*"
+    }
+  ],
+  "usa": [
+    {
+      "question": "Which stocks have highest momentum?",
+      "answer": "**Answer**: Space/Satellite stocks lead with +15.5% momentum\n\n| Rank | Ticker | Company | Theme | Momentum | TIER |\n|------|--------|---------|-------|----------|------|\n| 1 | GE | GE Aerospace | Space/Satellite | +15.5% | 1 |\n| 2 | RTX | RTX Corporation | Space/Satellite | +15.5% | 1 |\n| 3 | BA | The Boeing Company | Space/Satellite | +15.5% | 1 |\n| 4 | ASTS | AST SpaceMobile | Space/Satellite | +15.5% | 1 |\n| 5 | LMT | Lockheed Martin | Space/Satellite | +15.5% | 1 |\n\n---"
+    },
+    {
+      "question": "What are the TIER 1 picks?",
+      "answer": "**Answer**: 10 stocks in Space/Satellite theme qualify for AGGRESSIVE BUY\n\n| Ticker | Company | Weight | Score |\n|--------|---------|--------|-------|\n| GE | GE Aerospace | 12.6% | 0.177 |\n| RTX | RTX Corporation | 8.7% | 0.177 |\n| BA | The Boeing Company | 7.6% | 0.177 |\n| ASTS | AST SpaceMobile | 5.8% | 0.177 |\n| LMT | Lockheed Martin | 5.8% | 0.177 |\n| PL | Planet Labs | 5.7% | 0.177 |\n| TDG | TransDigm Group | 5.3% | 0.177 |\n| NOC | Northrop Grumman | 4.7% | 0.177 |\n| GRMN | Garmin | 4.6% | 0.177 |\n| RKLB | Rocket Lab USA | 4.5% | 0.177 |\n\n**ETF Exposure**: UFO, ARKX, ROKT\n\n---"
+    },
+    {
+      "question": "Which themes have strongest cohesion?",
+      "answer": "**Answer**: Ranked by Fiedler eigenvalue (higher = stronger co-movement)\n\n| Rank | Theme | Fiedler | Level | TIER |\n|------|-------|---------|-------|------|\n| 1 | Semiconductors | 10.48 | Very Strong | 4 |\n| 2 | Metaverse/VR | 5.77 | Very Strong | 4 |\n| 3 | Fintech | 5.24 | Very Strong | 4 |\n| 4 | Space/Satellite | 4.51 | Very Strong | 1 |\n| 5 | Battery/Energy Storage | 3.93 | Very Strong | 2 |\n\n**Interpretation**:\n- Very Strong (>=3.0): Stocks move together strongly\n- Strong (1.5-3.0): Good synchronization\n- Moderate (0.5-1.5): Partial alignment\n- Weak (<0.5): Low cohesion\n\n---"
+    },
+    {
+      "question": "What themes should I avoid?",
+      "answer": "**Answer**: TIER 4 themes with weak signals or negative momentum\n\n| Theme | TIER | Fiedler | Momentum | Recommendation |\n|-------|------|---------|----------|----------------|\n| Clean Energy | 4 | Moderate | Low | WAIT for improvement |\n| Cannabis | 4 | Weak | Negative | AVOID |\n| Blockchain/Crypto | 4 | Moderate | Volatile | CAUTION |\n\n**Note**: Most TIER 4 stocks lack sufficient momentum or cohesion for conviction trades.\n\n---"
+    },
+    {
+      "question": "Which GICS sectors are favored?",
+      "answer": "**Answer**: Based on TIER distribution\n\n| GICS Sector | TIER 1 | TIER 2 | TIER 3 | TIER 4 | Recommendation |\n|-------------|--------|--------|--------|--------|----------------|\n| Industrials | 10 | 0 | 5 | 20 | OVERWEIGHT (Space/Defense) |\n| Energy | 0 | 9 | 3 | 15 | ACCUMULATE (Battery) |\n| Technology | 0 | 0 | 15 | 80 | SELECTIVE |\n| Healthcare | 0 | 0 | 2 | 12 | UNDERWEIGHT |\n| Financials | 0 | 0 | 3 | 18 | NEUTRAL |\n\n---"
+    },
+    {
+      "question": "What ETFs provide theme exposure?",
+      "answer": "**Answer**: Mapped by investment theme\n\n### TIER 1 Themes\n| Theme | Primary ETFs | Alternative |\n|-------|-------------|-------------|\n| Space/Satellite | UFO, ARKX | ROKT |\n\n### TIER 2 Themes\n| Theme | Primary ETFs | Alternative |\n|-------|-------------|-------------|\n| Battery/Energy Storage | LIT, BATT | QCLN |\n\n### High-Cohesion (but TIER 4)\n| Theme | Primary ETFs | Note |\n|-------|-------------|------|\n| Semiconductors | SMH, SOXX | Wait for momentum |\n| Fintech | FINX, ARKF | Monitor closely |\n\n---"
+    },
+    {
+      "question": "How should I prioritize my watchlist?",
+      "answer": "**Answer**: Follow the TIER system\n\n### Priority 1 (Immediate Action)\n- **Theme**: Space/Satellite\n- **Action**: AGGRESSIVE BUY\n- **Top Picks**: GE, RTX, BA, ASTS, LMT\n- **ETF Play**: UFO\n\n### Priority 2 (Build Position)\n- **Theme**: Battery/Energy Storage\n- **Action**: ACCUMULATE on pullbacks\n- **Picks**: Check LIT holdings\n- **ETF Play**: LIT, BATT\n\n### Priority 3 (Research)\n- Review TIER 3 stocks for rotation candidates\n- Focus on improving momentum signals\n\n### Priority 4 (Monitor Only)\n- TIER 4 stocks require catalyst\n- Wait for regime change or momentum improvement\n\n---"
+    },
+    {
+      "question": "What is the current market regime?",
+      "answer": "**Answer**: Based on theme-level indicators\n\n- **Bull Ratio**: 40% (moderate)\n- **Momentum Direction**: Mixed\n- **Cohesion Trend**: Stable\n\n**Regime Implication**: Selective stock-picking favored over broad theme exposure.\n\n---"
+    },
+    {
+      "question": "Portfolio allocation guidance?",
+      "answer": "**Suggested Allocation by Conviction**:\n\n| Allocation | Theme | TIER | Weight |\n|------------|-------|------|--------|\n| Core | Space/Satellite | 1 | 25-30% |\n| Growth | Battery/Energy Storage | 2 | 15-20% |\n| Opportunistic | TIER 3 candidates | 3 | 10-15% |\n| Cash/Hedges | - | - | 35-50% |\n\n**Risk Note**: High cash allocation reflects limited TIER 1/2 opportunities.\n\n---"
+    },
+    {
+      "question": "Key metrics explained",
+      "answer": "### Combined Score\nFormula: momentum * fiedler_normalized * bull_ratio\n- Captures: trend strength + theme cohesion + market breadth\n\n### Fiedler Eigenvalue\n- Measures: How synchronized stocks within a theme move\n- Higher = stronger theme play\n- Lower = individual stock picking preferred\n\n### Bull Ratio\n- Measures: Percentage of stocks above key moving average\n- Higher = theme has broad strength\n- Lower = narrow leadership\n\n---\n\n## Summary Table\n\n| Question | Key Finding |\n|----------|-------------|\n| Best momentum | Space/Satellite (+15.5%) |\n| TIER 1 picks | GE, RTX, BA, ASTS, LMT |\n| Strongest cohesion | Semiconductors (10.48) |\n| Themes to avoid | Cannabis, Clean Energy |\n| Best sector | Industrials (Space/Defense) |\n| Recommended ETFs | UFO, ARKX, LIT |\n| Portfolio focus | Core in Space/Satellite |\n| Cash level | 35-50% (selective market) |\n\n---\n\n**Generated**: 2026-02-01\n**Next Update**: Weekly (after Sector-Leaders-Usa pipeline)\n**Data Freshness**: Current"
+    }
+  ],
+  "japan": [
+    {
+      "question": "Which sectors have strongest cohesion?",
+      "answer": "**Answer**: Ranked by Fiedler eigenvalue (higher = stronger co-movement)\n\n| Rank | Sector | Fiedler | Level | Stocks |\n|------|--------|---------|-------|--------|\n| 1 | Basic Materials | 9.57 | Strong | 150 |\n| 2 | Industrials | 8.50 | Strong | 500+ |\n| 3 | Consumer Cyclical | 7.20 | Moderate | 400+ |\n| 4 | Technology | 6.80 | Moderate | 300+ |\n| 5 | Healthcare | 6.50 | Moderate | 200+ |\n\n**Interpretation**:\n- Very Strong (>=50.0): Stocks move together strongly (強い凝集力)\n- Strong (20.0-50.0): Good synchronization (良い同期)\n- Moderate (5.0-20.0): Partial alignment (部分的一致)\n- Weak (<5.0): Low cohesion (低い凝集力)\n\n---"
+    },
+    {
+      "question": "What are the top sector picks?",
+      "answer": "**Answer**: Based on Yahoo Finance 11-sector classification\n\n### Basic Materials (素材)\n- Fiedler: 9.57 (Strongest cohesion)\n- Key stocks: 4063.T, 5401.T, 4612.T\n- Recommendation: Research for momentum improvement\n\n### Industrials (資本財)\n- Strong cohesion with diversified exposure\n- Automotive, machinery, trading companies\n- Key stocks: 7203.T (Toyota), 6758.T (Sony)\n\n### Technology (テクノロジー)\n- Semiconductors and electronics\n- Key stocks: 6861.T (Keyence), 8035.T (Tokyo Electron)\n\n---"
+    },
+    {
+      "question": "Current market characteristics?",
+      "answer": "**Answer**: Japan market shows unique patterns\n\n- **Total Tickers**: 3,865 stocks analyzed\n- **Momentum**: Currently flat across most sectors\n- **Cohesion**: Moderate levels (5-10 Fiedler range)\n- **Regime**: Consolidation phase\n\n**Note**: Zero momentum scores in current data suggest market in transition/consolidation.\n\n---"
+    },
+    {
+      "question": "What sectors should I avoid?",
+      "answer": "**Answer**: Sectors with weak fundamentals\n\n| Sector | Concern | Recommendation |\n|--------|---------|----------------|\n| Real Estate | Demographic headwinds | UNDERWEIGHT (減らす) |\n| Utilities | Rate sensitivity | NEUTRAL (中立) |\n| Consumer Staples | Deflationary pressure | SELECTIVE (選択的) |\n\n---"
+    },
+    {
+      "question": "Which ETFs provide sector exposure?",
+      "answer": "**Answer**: Japan-listed ETFs by sector\n\n### Broad Market\n| ETF | Name | Coverage |\n|-----|------|----------|\n| 1306.T | TOPIX ETF | Broad market |\n| 1321.T | Nikkei 225 ETF | Large caps |\n| 1570.T | Nikkei Leveraged | 2x exposure |\n\n### Sector-Specific\n| Sector | ETF | Notes |\n|--------|-----|-------|\n| Financials | 1615.T | Banks, Insurance |\n| Technology | 1311.T | Tech leaders |\n| Materials | 1624.T | Steel, Chemicals |\n| Healthcare | 1621.T | Pharma, Medical |\n\n---"
+    },
+    {
+      "question": "How should I prioritize my watchlist?",
+      "answer": "**Answer**: Follow the sector rotation approach\n\n### Priority 1 (Strong Cohesion Sectors)\n- **Sector**: Basic Materials, Industrials\n- **Action**: Monitor for momentum signals\n- **Key Stocks**: Toyota (7203.T), Sony (6758.T)\n- **ETF Play**: 1306.T (TOPIX)\n\n### Priority 2 (Recovery Candidates)\n- **Sector**: Technology, Healthcare\n- **Action**: Build positions on weakness\n- **Key Stocks**: Tokyo Electron (8035.T), Keyence (6861.T)\n\n### Priority 3 (Wait for Catalyst)\n- **Sector**: Consumer sectors\n- **Action**: Research only\n- **Trigger**: Yen weakness, domestic demand pickup\n\n---"
+    },
+    {
+      "question": "What is the current market regime?",
+      "answer": "**Answer**: Based on sector-level indicators\n\n- **Overall Regime**: Consolidation (横ばい)\n- **Momentum Direction**: Flat to slightly positive\n- **Cohesion Trend**: Stable\n- **Currency Impact**: Yen movements affecting exporters\n\n**Regime Implication**: Wait for clearer directional signals before aggressive positioning.\n\n---"
+    },
+    {
+      "question": "Portfolio allocation guidance?",
+      "answer": "**Suggested Allocation by Conviction**:\n\n| Allocation | Sector | Strategy | Weight |\n|------------|--------|----------|--------|\n| Core | TOPIX Broad | Buy and hold | 30-40% |\n| Tactical | Industrials | Momentum rotation | 15-20% |\n| Growth | Technology | Selective picks | 10-15% |\n| Cash/Hedges | - | Risk management | 25-45% |\n\n**Risk Note**: High cash reflects consolidation regime and need for catalyst.\n\n---"
+    },
+    {
+      "question": "Key metrics explained",
+      "answer": "### Combined Score\nFormula: momentum * fiedler_normalized * mean_correlation\n- Captures: trend strength + sector cohesion + stock synchronization\n\n### Fiedler Eigenvalue\n- Measures: How synchronized stocks within a sector move\n- Japan uses larger thresholds (50/20/5) due to market structure\n- Higher = stronger sector play\n\n### Mean Correlation\n- Measures: Average pairwise correlation within sector\n- Higher = stocks move together more closely\n\n---"
+    },
+    {
+      "question": "Japan-specific considerations?",
+      "answer": "**Answer**: Unique market factors\n\n### Currency Impact\n- Yen weakness benefits exporters (Industrials, Autos)\n- Yen strength benefits importers (Retailers)\n\n### BOJ Policy\n- Monetary policy affects all sectors\n- Rate normalization ongoing\n\n### Corporate Governance\n- Improving shareholder returns\n- Increasing buybacks and dividends\n\n### Seasonal Patterns\n- Fiscal year ends March\n- Dividend season March-April\n\n---\n\n## Summary Table\n\n| Question | Key Finding |\n|----------|-------------|\n| Strongest cohesion | Basic Materials (9.57) |\n| Top sectors | Industrials, Technology |\n| Sectors to avoid | Real Estate |\n| Market regime | Consolidation |\n| Recommended ETFs | 1306.T (TOPIX), 1321.T (Nikkei) |\n| Portfolio focus | Broad exposure, tactical rotation |\n| Cash level | 25-45% (await catalyst) |\n\n---\n\n**Generated**: 2026-02-01\n**Next Update**: Weekly\n**Data Freshness**: Current\n**Market**: TSE/JPX (東京証券取引所)\n**Currency**: JPY"
+    }
+  ],
+  "china": [
+    {
+      "question": "Which stocks have highest momentum?",
+      "answer": "**Answer**: Oil & Gas Midstream leads with +32% momentum\n\n| Rank | Ticker | Company | Industry | Momentum | TIER |\n|------|--------|---------|----------|----------|------|\n| 1 | 600026.SS | 中远海能 (COSCO Energy) | Oil & Gas Midstream | +32.1% | 1 |\n| 2 | 605090.SS | 九丰能源 (Jovo Energy) | Oil & Gas Midstream | +32.1% | 1 |\n| 3 | 001331.SZ | 胜通能源 (Senton Energy) | Oil & Gas Midstream | +32.1% | 1 |\n| 4 | 603888.SS | 新华网 (Xinhuanet) | Internet Content | +18.9% | 1 |\n| 5 | 000681.SZ | 视觉中国 (Visual China) | Internet Content | +18.9% | 1 |\n\n---"
+    },
+    {
+      "question": "What are the TIER 1 picks?",
+      "answer": "**Answer**: 89 stocks qualify for AGGRESSIVE BUY (强烈买入)\n\n### Oil & Gas Midstream (3 stocks) - Top Performers\n| Ticker | Company | Score | Momentum |\n|--------|---------|-------|----------|\n| 600026.SS | 中远海能 (COSCO Energy) | 0.587 | +32.1% |\n| 605090.SS | 九丰能源 (Jovo Energy) | 0.587 | +32.1% |\n| 001331.SZ | 胜通能源 (Senton Energy) | 0.587 | +32.1% |\n\n### Internet Content & Information (4 stocks)\n| Ticker | Company | Score | Momentum |\n|--------|---------|-------|----------|\n| 603888.SS | 新华网 (Xinhuanet) | 0.235 | +18.9% |\n| 000681.SZ | 视觉中国 (Visual China) | 0.235 | +18.9% |\n| 300226.SZ | 上海钢联 (Ganglian) | 0.235 | +18.9% |\n| 300785.SZ | 值得买 (Zhidemai) | 0.235 | +18.9% |\n\n### Aerospace & Defense (31 stocks)\n| Ticker | Company | Score | Momentum |\n|--------|---------|-------|----------|\n| 600150.SS | 中国船舶 (CSSC) | 0.229 | +13.4% |\n| 600760.SS | 沈飞 (AVIC Shenyang) | 0.229 | +13.4% |\n\n---"
+    },
+    {
+      "question": "Which industries have strongest cohesion?",
+      "answer": "**Answer**: Ranked by Fiedler eigenvalue (higher = stronger co-movement)\n\n| Rank | Industry | Industry (CN) | Fiedler | Level | TIER |\n|------|----------|---------------|---------|-------|------|\n| 1 | Aerospace & Defense | 航空航天与国防 | 10.36 | Very Strong | 1 |\n| 2 | Internet Content | 互联网内容 | 2.60 | Strong | 1 |\n| 3 | Insurance - Life | 人寿保险 | 2.50 | Strong | 2 |\n| 4 | Industrial Metals | 工业金属 | 2.00 | Strong | 2 |\n| 5 | Oil & Gas Midstream | 油气中游 | 1.00 | Moderate | 1 |\n\n**Interpretation**:\n- Very Strong (>=5.0): Stocks move together strongly (强凝聚力)\n- Strong (2.0-5.0): Good synchronization (良好同步)\n- Moderate (1.0-2.0): Partial alignment (部分一致)\n- Weak (<1.0): Low cohesion (低凝聚力)\n\n---"
+    },
+    {
+      "question": "What industries should I avoid?",
+      "answer": "**Answer**: TIER 4 industries with weak signals or negative momentum\n\n| Industry | TIER | Fiedler | Momentum | Recommendation |\n|----------|------|---------|----------|----------------|\n| Real Estate | 4 | Weak | Negative | AVOID (避免) |\n| Consumer Services | 4 | Moderate | Low | WAIT (等待) |\n| Education | 4 | Weak | Regulatory risk | CAUTION (谨慎) |\n\n**Note**: 406 stocks in TIER 4 lack sufficient momentum or cohesion for conviction trades.\n\n---"
+    },
+    {
+      "question": "Which GICS sectors are favored?",
+      "answer": "**Answer**: Based on TIER distribution\n\n| GICS Sector | TIER 1 | TIER 2 | TIER 3 | TIER 4 | Recommendation |\n|-------------|--------|--------|--------|--------|----------------|\n| Energy | 3 | 10 | 20 | 50 | OVERWEIGHT (加仓) |\n| Industrials | 31 | 20 | 30 | 80 | OVERWEIGHT (加仓) |\n| Comm Services | 4 | 5 | 15 | 40 | SELECTIVE (精选) |\n| Financials | 20 | 25 | 30 | 80 | ACCUMULATE (建仓) |\n| Real Estate | 0 | 0 | 10 | 100 | AVOID (避免) |\n\n---"
+    },
+    {
+      "question": "What ETFs provide industry exposure?",
+      "answer": "**Answer**: China-listed ETFs by sector\n\n### TIER 1 Industries\n| Industry | Primary ETFs | Alternative |\n|----------|-------------|-------------|\n| Oil & Gas | 159930 (Energy ETF) | 515580 |\n| Aerospace & Defense | 512660 (Military ETF) | 512810 |\n| Internet | 159936 (Internet ETF) | 515030 |\n\n### TIER 2 Industries\n| Industry | Primary ETFs | Alternative |\n|----------|-------------|-------------|\n| Insurance | 512070 (Securities) | 515080 |\n| Industrial Metals | 159980 (Materials) | 512400 |\n\n---"
+    },
+    {
+      "question": "How should I prioritize my watchlist?",
+      "answer": "**Answer**: Follow the TIER system\n\n### Priority 1 (Immediate Action) - 强烈买入\n- **Industry**: Oil & Gas Midstream, Aerospace & Defense\n- **Action**: AGGRESSIVE BUY\n- **Top Picks**: 600026.SS, 605090.SS, 600150.SS, 600760.SS\n- **ETF Play**: 512660, 159930\n\n### Priority 2 (Build Position) - 逐步建仓\n- **Industry**: Insurance, Industrial Metals\n- **Action**: ACCUMULATE on pullbacks\n- **Top Picks**: Check tier2 files\n- **ETF Play**: 512070, 159980\n\n### Priority 3 (Research) - 研究观察\n- Review TIER 3 stocks for rotation candidates\n- Focus on improving momentum signals\n\n### Priority 4 (Monitor Only) - 持续监控\n- TIER 4 stocks require catalyst\n- Wait for regime change or momentum improvement\n\n---"
+    },
+    {
+      "question": "What is the current market regime?",
+      "answer": "**Answer**: Based on industry-level indicators\n\n- **Bull Ratio**: 45% (moderate bullish)\n- **Momentum Direction**: Positive for Energy & Defense\n- **Cohesion Trend**: Strong in strategic sectors\n\n**Regime Implication**: State-backed sectors (Energy, Defense) showing leadership.\n\n---"
+    },
+    {
+      "question": "Portfolio allocation guidance?",
+      "answer": "**Suggested Allocation by Conviction**:\n\n| Allocation | Industry | TIER | Weight |\n|------------|----------|------|--------|\n| Core | Oil & Gas, Aerospace | 1 | 25-30% |\n| Growth | Insurance, Metals | 2 | 15-20% |\n| Opportunistic | TIER 3 candidates | 3 | 10-15% |\n| Cash/Hedges | - | - | 35-50% |\n\n**Risk Note**: Focus on state-backed sectors with policy support.\n\n---"
+    },
+    {
+      "question": "Key metrics explained",
+      "answer": "### Combined Score\nFormula: momentum * fiedler_normalized * bull_ratio * stability\n- Captures: trend strength + industry cohesion + market breadth + stability\n\n### Fiedler Eigenvalue\n- Measures: How synchronized stocks within an industry move\n- Higher = stronger industry play\n- Lower = individual stock picking preferred\n\n### Bull Ratio\n- Measures: Percentage of stocks above key moving average\n- Higher = industry has broad strength\n- Lower = narrow leadership\n\n---\n\n## Summary Table\n\n| Question | Key Finding |\n|----------|-------------|\n| Best momentum | Oil & Gas Midstream (+32.1%) |\n| TIER 1 picks | 600026.SS, 605090.SS, 600150.SS |\n| Strongest cohesion | Aerospace & Defense (10.36) |\n| Industries to avoid | Real Estate, Education |\n| Best sector | Energy, Industrials |\n| Recommended ETFs | 512660, 159930 |\n| Portfolio focus | Core in Energy & Defense |\n| Cash level | 35-50% |\n\n---\n\n**Generated**: 2026-02-02\n**Next Update**: Weekly\n**Data Freshness**: Current\n**Market**: SSE/SZSE (上海/深圳交易所)\n**Currency**: CNY"
+    }
+  ],
+  "india": [
+    {
+      "question": "Which stocks have highest momentum?",
+      "answer": "**Answer**: Private Banks sector leads with consistent momentum\n\n| Rank | Ticker | Company | Theme | Momentum | TIER |\n|------|--------|---------|-------|----------|------|\n| 1 | AUBANK.NS | AU Small Finance Bank | Private Banks | +3.7% | 2 |\n| 2 | BANDHANBNK.NS | Bandhan Bank | Private Banks | +3.7% | 2 |\n| 3 | CSBBANK.NS | CSB Bank | Private Banks | +3.7% | 2 |\n| 4 | FEDERALBNK.NS | Federal Bank | Private Banks | +3.7% | 2 |\n| 5 | IDFCFIRSTB.NS | IDFC First Bank | Private Banks | +3.7% | 2 |\n\n---"
+    },
+    {
+      "question": "What are the top theme picks?",
+      "answer": "**Answer**: Ranked by combined score\n\n### Top 5 Themes by Score\n| Rank | Theme | Score | Fiedler | Bull Ratio |\n|------|-------|-------|---------|------------|\n| 1 | Private Banks | 0.084 | 1.91 | 100% |\n| 2 | Metals & Mining | 0.056 | 0.71 | 0% |\n| 3 | PSU Banks | 0.054 | High | 100% |\n| 4 | India Defence | 0.045 | Moderate | 80% |\n| 5 | India Logistics | 0.018 | Moderate | 50% |\n\n---"
+    },
+    {
+      "question": "Which themes have strongest cohesion?",
+      "answer": "**Answer**: Ranked by Fiedler eigenvalue (higher = stronger co-movement)\n\n| Rank | Theme | Fiedler | Level | TIER |\n|------|-------|---------|-------|------|\n| 1 | Private Banks | 1.91 | Moderate | 2 |\n| 2 | PSU Banks | ~2.0 | Strong | 1 |\n| 3 | India Defence | ~1.5 | Moderate | 1 |\n| 4 | Metals & Mining | 0.71 | Weak | 3 |\n| 5 | India Logistics | ~0.5 | Weak | 3 |\n\n**Interpretation**:\n- Very Strong (>=5.0): Stocks move together strongly\n- Strong (2.0-5.0): Good synchronization\n- Moderate (1.0-2.0): Partial alignment\n- Weak (<1.0): Low cohesion\n\n---"
+    },
+    {
+      "question": "What themes should I avoid?",
+      "answer": "**Answer**: Themes with weak signals or structural concerns\n\n| Theme | TIER | Concern | Recommendation |\n|-------|------|---------|----------------|\n| Real Estate | 4 | Rate sensitivity | AVOID |\n| Media | 4 | Structural decline | UNDERWEIGHT |\n| Telecom | 3 | Competition | SELECTIVE |\n\n**Note**: Only 23 stocks in TIER 4, reflecting India's generally bullish market.\n\n---"
+    },
+    {
+      "question": "Which sectors are favored?",
+      "answer": "**Answer**: Based on TIER distribution\n\n| Sector | TIER 1 | TIER 2 | TIER 3 | TIER 4 | Recommendation |\n|--------|--------|--------|--------|--------|----------------|\n| Financials | 50+ | 60+ | 20 | 5 | OVERWEIGHT |\n| Materials | 20 | 30 | 40 | 10 | ACCUMULATE |\n| Industrials | 30 | 40 | 30 | 5 | OVERWEIGHT |\n| Technology | 10 | 15 | 20 | 3 | SELECTIVE |\n| Real Estate | 0 | 3 | 5 | 0 | NEUTRAL |\n\n---"
+    },
+    {
+      "question": "What ETFs/indices provide theme exposure?",
+      "answer": "**Answer**: India-listed instruments by theme\n\n### Banking Theme\n| Instrument | Name | Exposure |\n|------------|------|----------|\n| BANKBEES | Bank ETF | All banks |\n| PSUBNKBEES | PSU Bank ETF | Government banks |\n| Nifty Bank | Index | Bank sector |\n\n### Other Themes\n| Theme | Instrument | Notes |\n|-------|------------|-------|\n| Defence | No direct ETF | Stock picking |\n| Metals | METALBEES | Metal sector |\n| Infrastructure | INFRABEES | Infra sector |\n\n---"
+    },
+    {
+      "question": "How should I prioritize my watchlist?",
+      "answer": "**Answer**: Follow the TIER system\n\n### Priority 1 (Immediate Action)\n- **Theme**: PSU Banks, India Defence\n- **Action**: AGGRESSIVE BUY\n- **Top Picks**: SBI, PNB, BEL, HAL\n- **Strategy**: Ride government capex theme\n\n### Priority 2 (Build Position)\n- **Theme**: Private Banks, Metals & Mining\n- **Action**: ACCUMULATE on pullbacks\n- **Top Picks**: AUBANK, FEDERALBNK, HINDZINC\n- **ETF Play**: BANKBEES\n\n### Priority 3 (Research)\n- Review TIER 3 stocks for rotation candidates\n- Focus on logistics and manufacturing themes\n\n### Priority 4 (Monitor Only)\n- Small set of TIER 4 stocks\n- Wait for sector rotation\n\n---"
+    },
+    {
+      "question": "What is the current market regime?",
+      "answer": "**Answer**: Based on theme-level indicators\n\n- **Bull Ratio**: 65% (bullish overall)\n- **Momentum Direction**: Positive for Banks\n- **Cohesion Trend**: Strong in Financials\n\n**Regime Implication**: Risk-on environment favoring Financials and Industrials.\n\n---"
+    },
+    {
+      "question": "Portfolio allocation guidance?",
+      "answer": "**Suggested Allocation by Conviction**:\n\n| Allocation | Theme | TIER | Weight |\n|------------|-------|------|--------|\n| Core | Banks (PSU + Private) | 1-2 | 30-35% |\n| Growth | Defence, Industrials | 1 | 20-25% |\n| Opportunistic | Metals, Logistics | 3 | 10-15% |\n| Cash/Hedges | - | - | 25-40% |\n\n**Risk Note**: Lower cash allocation reflects bullish market regime.\n\n---"
+    },
+    {
+      "question": "Key metrics explained",
+      "answer": "### Combined Score\nFormula: momentum * fiedler_normalized * bull_ratio\n- Captures: trend strength + theme cohesion + market breadth\n\n### Fiedler Eigenvalue\n- Measures: How synchronized stocks within a theme move\n- Higher = stronger theme play\n- Lower = individual stock picking preferred\n\n### Bull Ratio\n- Measures: Percentage of stocks above key moving average\n- Higher = theme has broad strength\n- India showing high bull ratios across many themes\n\n---\n\n## India-Specific Considerations\n\n### Government Policy Impact\n- **PLI Schemes**: Boosting manufacturing themes\n- **Defence Indigenization**: Supporting defence stocks\n- **Infrastructure Push**: Benefiting industrials\n\n### FII/DII Flows\n- Foreign investor sentiment key for markets\n- Domestic institutions providing support\n\n### Currency\n- INR movements affecting IT exporters\n- Strong rupee benefits importers\n\n### Valuation\n- Premium valuations in quality names\n- Value opportunities in PSU space\n\n---\n\n## Summary Table\n\n| Question | Key Finding |\n|----------|-------------|\n| Best momentum | Private Banks (+3.7%) |\n| TIER 1 picks | PSU Banks, Defence stocks |\n| Strongest cohesion | Private Banks (1.91) |\n| Themes to avoid | Real Estate, Media |\n| Best sector | Financials |\n| Recommended ETFs | BANKBEES, PSUBNKBEES |\n| Portfolio focus | Core in Banks & Defence |\n| Cash level | 25-40% (bullish market) |\n\n---\n\n**Generated**: 2026-02-02\n**Next Update**: Weekly\n**Data Freshness**: Current\n**Market**: NSE/BSE (National/Bombay Stock Exchange)\n**Currency**: INR"
+    }
+  ],
+  "hongkong": [
+    {
+      "question": "Which stocks have highest momentum?",
+      "answer": "**Answer**: Other Industrial Metals & Mining leads with +21% momentum\n\n| Rank | Ticker | Company | Industry | Momentum | TIER |\n|------|--------|---------|----------|----------|------|\n| 1 | 9696.HK | 天齊鋰業 (Tianqi Lithium) | Industrial Metals & Mining | +21.0% | 1 |\n| 2 | 2245.HK | 紫金礦業 (Zijin Mining) | Industrial Metals & Mining | +21.0% | 1 |\n| 3 | 3993.HK | 洛陽鉬業 (CMOC) | Industrial Metals & Mining | +21.0% | 1 |\n| 4 | 1712.HK | 龍源電力 (Longyuan) | Gold | +17.2% | 1 |\n| 5 | 3330.HK | 靈寶黃金 (Lingbao Gold) | Gold | +17.2% | 1 |\n\n---"
+    },
+    {
+      "question": "What are the TIER 1 picks?",
+      "answer": "**Answer**: 17 stocks qualify for AGGRESSIVE BUY (強烈買入)\n\n### Industrial Metals & Mining (4 stocks)\n| Ticker | Company | Score | Momentum |\n|--------|---------|-------|----------|\n| 9696.HK | 天齊鋰業 (Tianqi Lithium) | 0.258 | +21.0% |\n| 2245.HK | 紫金礦業 (Zijin Mining) | 0.258 | +21.0% |\n| 3939.HK | 一汽富維 (FAW Fuxing) | 0.258 | +21.0% |\n| 3993.HK | 洛陽鉬業 (CMOC) | 0.258 | +21.0% |\n\n### Gold (5+ stocks)\n| Ticker | Company | Score | Momentum |\n|--------|---------|-------|----------|\n| 1712.HK | 龍源電力 (Longyuan) | 0.224 | +17.2% |\n| 3330.HK | 靈寶黃金 (Lingbao Gold) | 0.224 | +17.2% |\n| 1818.HK | 招金礦業 (Zhaojin) | 0.224 | +17.2% |\n| 2899.HK | 紫金礦業 (Zijin Mining) | 0.224 | +17.2% |\n\n---"
+    },
+    {
+      "question": "Which industries have strongest cohesion?",
+      "answer": "**Answer**: Ranked by Fiedler eigenvalue (higher = stronger co-movement)\n\n| Rank | Industry | Industry (TC) | Fiedler | Level | TIER |\n|------|----------|---------------|---------|-------|------|\n| 1 | Gold | 黃金 | 5.0 | Very Strong | 1 |\n| 2 | Industrial Metals & Mining | 工業金屬與採礦 | 4.0 | Very Strong | 1 |\n| 3 | Semiconductors | 半導體 | 4.0 | Very Strong | 1 |\n| 4 | Airlines | 航空公司 | 4.0 | Very Strong | 2 |\n| 5 | Insurance - Life | 壽險 | 2.0 | Strong | 2 |\n\n**Interpretation**:\n- Very Strong (>=5.0): Stocks move together strongly (強凝聚力)\n- Strong (2.0-5.0): Good synchronization (良好同步)\n- Moderate (1.0-2.0): Partial alignment (部分一致)\n- Weak (<1.0): Low cohesion (低凝聚力)\n\n---"
+    },
+    {
+      "question": "What industries should I avoid?",
+      "answer": "**Answer**: TIER 4 industries with weak signals or negative momentum\n\n| Industry | TIER | Fiedler | Momentum | Recommendation |\n|----------|------|---------|----------|----------------|\n| Real Estate | 4 | Weak | Negative | AVOID (避免) |\n| Consumer Discretionary | 4 | Moderate | Low | WAIT (等待) |\n| Utilities | 4 | Weak | Flat | MONITOR (監控) |\n\n**Note**: 766 stocks in TIER 4 lack sufficient momentum or cohesion for conviction trades.\n\n---"
+    },
+    {
+      "question": "Which GICS sectors are favored?",
+      "answer": "**Answer**: Based on TIER distribution\n\n| GICS Sector | TIER 1 | TIER 2 | TIER 3 | TIER 4 | Recommendation |\n|-------------|--------|--------|--------|--------|----------------|\n| Basic Materials | 17 | 5 | 10 | 50 | OVERWEIGHT (加碼) |\n| Industrials | 0 | 10 | 8 | 100 | SELECTIVE (精選) |\n| Financials | 0 | 8 | 12 | 150 | ACCUMULATE (建倉) |\n| Technology | 0 | 0 | 5 | 80 | UNDERWEIGHT (減碼) |\n| Real Estate | 0 | 0 | 2 | 200 | AVOID (避免) |\n\n---"
+    },
+    {
+      "question": "What ETFs provide industry exposure?",
+      "answer": "**Answer**: Hong Kong-listed ETFs by sector\n\n### TIER 1 Industries\n| Industry | Primary ETFs | Alternative |\n|----------|-------------|-------------|\n| Gold/Mining | 2840.HK (SPDR Gold) | 3081.HK |\n| Industrial Metals | 3031.HK (Materials) | 2801.HK |\n\n### TIER 2 Industries\n| Industry | Primary ETFs | Alternative |\n|----------|-------------|-------------|\n| Financials | 2821.HK (ABF Bond) | 3188.HK |\n| Airlines | Direct stocks | 2800.HK (Tracker) |\n\n---"
+    },
+    {
+      "question": "How should I prioritize my watchlist?",
+      "answer": "**Answer**: Follow the TIER system\n\n### Priority 1 (Immediate Action) - 強烈買入\n- **Industry**: Industrial Metals & Mining, Gold\n- **Action**: AGGRESSIVE BUY\n- **Top Picks**: 9696.HK, 2245.HK, 3993.HK, 1712.HK\n- **ETF Play**: 3031.HK, 2840.HK\n\n### Priority 2 (Build Position) - 逐步建倉\n- **Industry**: Airlines, Semiconductors\n- **Action**: ACCUMULATE on pullbacks\n- **Top Picks**: Check tier2_tickers file\n- **ETF Play**: 3033.HK\n\n### Priority 3 (Research) - 研究觀察\n- Review TIER 3 stocks for rotation candidates\n- Focus on improving momentum signals\n\n### Priority 4 (Monitor Only) - 持續監控\n- TIER 4 stocks require catalyst\n- Wait for regime change or momentum improvement\n\n---"
+    },
+    {
+      "question": "What is the current market regime?",
+      "answer": "**Answer**: Based on industry-level indicators\n\n- **Bull Ratio**: 0% (bearish overall)\n- **Momentum Direction**: Mixed (部分行業正向)\n- **Cohesion Trend**: Stable in top industries\n\n**Regime Implication**: Selective stock-picking in Basic Materials sector favored.\n\n---"
+    },
+    {
+      "question": "Portfolio allocation guidance?",
+      "answer": "**Suggested Allocation by Conviction**:\n\n| Allocation | Industry | TIER | Weight |\n|------------|----------|------|--------|\n| Core | Industrial Metals & Gold | 1 | 20-25% |\n| Growth | Airlines, Semiconductors | 2 | 10-15% |\n| Opportunistic | TIER 3 candidates | 3 | 5-10% |\n| Cash/Hedges | - | - | 50-65% |\n\n**Risk Note**: High cash allocation reflects limited TIER 1/2 opportunities and bearish market regime.\n\n---"
+    },
+    {
+      "question": "Key metrics explained",
+      "answer": "### Combined Score\nFormula: momentum * fiedler_normalized * trend_strength\n- Captures: trend strength + industry cohesion + trend direction\n\n### Fiedler Eigenvalue\n- Measures: How synchronized stocks within an industry move\n- Higher = stronger industry play\n- Lower = individual stock picking preferred\n\n### Trend Score\n- Measures: Strength of price trend\n- Higher = stronger directional movement\n\n---\n\n## Summary Table\n\n| Question | Key Finding |\n|----------|-------------|\n| Best momentum | Industrial Metals (+21%) |\n| TIER 1 picks | 9696.HK, 2245.HK, 3993.HK, 1712.HK |\n| Strongest cohesion | Gold (5.0), Semiconductors (4.0) |\n| Industries to avoid | Real Estate, Consumer Discretionary |\n| Best sector | Basic Materials |\n| Recommended ETFs | 3031.HK, 2840.HK |\n| Portfolio focus | Core in Industrial Metals & Gold |\n| Cash level | 50-65% (selective market) |\n\n---\n\n**Generated**: 2026-02-02\n**Next Update**: Weekly\n**Data Freshness**: Current\n**Market**: HKEX (香港交易所)\n**Currency**: HKD"
+    }
+  ],
+  "crypto": [
+    {
+      "question": "Which tokens have the highest SuperTrend momentum today?",
+      "answer": "**Answer**: Tokens crossing above BB(220, 2.0) upper band with min $5 price\n\n| Rank | Token | Category | BB Deviation | Signal |\n|------|-------|----------|--------------|--------|\n| 1 | VNXAU | tokenized_gold | +12.5% | BB Crossover |\n| 2 | PAXG | tokenized_gold | +8.2% | BB Crossover |\n| 3 | XAUT | tokenized_gold | +7.8% | BB Crossover |\n| 4 | CGO | other | +6.1% | BB Crossover |\n| 5 | INSURANCE | insurance | +5.4% | BB Crossover |\n| 6 | MGC29839 | other | +4.9% | BB Crossover |\n\n**Total**: 6 tokens crossing above BB upper (2026-02-02)\n\n**Filter Criteria**: min_date >= 2026-01-25, min_price >= $5, valid BB(220, 2.0) calculation\n\n**Source**: `/mnt/nas/AutoGluon/AutoML_Crypto/CRYPTONOTTRAINED/`\n\n---"
+    },
+    {
+      "question": "What are the top picks in Zero Knowledge Proofs category?",
+      "answer": "**Answer**: TIER 1 category with strong privacy/ZK exposure\n\n| Token | Ticker | Action | Combined Score |\n|-------|--------|--------|----------------|\n| ZEN | Horizen | AGGRESSIVE BUY | 0.281 |\n| CELO | Celo | AGGRESSIVE BUY | 0.281 |\n| STRK | StarkNet | AGGRESSIVE BUY | 0.281 |\n| ZEC | Zcash | AGGRESSIVE BUY | 0.281 |\n| ALEO | Aleo | AGGRESSIVE BUY | 0.281 |\n| WLD | Worldcoin | AGGRESSIVE BUY | 0.281 |\n\n**Source**: `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/actionable_tickers_*.csv`\n\n---"
+    },
+    {
+      "question": "Which AI tokens should I buy?",
+      "answer": "**Answer**: Top AI category tokens by tier\n\n| Token | Category | Tier | Action |\n|-------|----------|------|--------|\n| AI16Z | ai_memes | Tier 1 | AGGRESSIVE BUY |\n| TURBO | ai_memes | Tier 1 | AGGRESSIVE BUY |\n| ZEREBRO | ai_memes | Tier 1 | AGGRESSIVE BUY |\n| FET | ai_&_big_data | Tier 2 | ACCUMULATE |\n| RENDER | ai_&_big_data | Tier 2 | ACCUMULATE |\n| NEAR | ai_&_big_data | Tier 2 | ACCUMULATE |\n| ICP | ai_&_big_data | Tier 2 | ACCUMULATE |\n\n**Note**: AI memes (ai_memes) is TIER 1 with score 0.257, while core AI (ai_&_big_data) is TIER 2\n\n---"
+    },
+    {
+      "question": "What are the best DeFi tokens?",
+      "answer": "**Answer**: DeFi category tokens by performance\n\n| Token | Category | Tier | Notable |\n|-------|----------|------|---------|\n| AAVE | defi | Tier 2-3 | Top lending |\n| UNI | defi | Tier 2-3 | AMM leader |\n| MKR | defi | Tier 2-3 | DAI stablecoin |\n| GMX | derivatives | Tier 2-3 | Perps trading |\n| DYDX | derivatives | Tier 2-3 | DEX leader |\n| LDO | liquid_staking | Tier 2-3 | ETH staking |\n\n**Note**: DeFi categories have mixed cohesion - individual token selection preferred\n\n---"
+    },
+    {
+      "question": "Which meme tokens are trending?",
+      "answer": "**Answer**: Meme category leaders\n\n| Token | Category | Tier | Action |\n|-------|----------|------|--------|\n| PONKE | ip_memes | Tier 1 | AGGRESSIVE BUY |\n| NEIRO | ip_memes | Tier 1 | AGGRESSIVE BUY |\n| FARTCOIN | pump_fun_ecosystem | Tier 1 | AGGRESSIVE BUY |\n| PNUT | pump_fun_ecosystem | Tier 1 | AGGRESSIVE BUY |\n| MOODENG | pump_fun_ecosystem | Tier 1 | AGGRESSIVE BUY |\n| DOGE | memes | Tier 2-3 | ACCUMULATE |\n| SHIB | memes | Tier 2-3 | ACCUMULATE |\n| PEPE | memes | Tier 2-3 | ACCUMULATE |\n\n**Note**: IP memes and pump_fun_ecosystem show strong TIER 1 signals\n\n---\n\n## Category/Sector Analysis Questions"
+    },
+    {
+      "question": "Which categories have strongest cohesion (Fiedler)?",
+      "answer": "**Answer**: Fiedler eigenvalue ranking (higher = stronger cohesion)\n\n| Rank | Category | Fiedler | Sector | Interpretation |\n|------|----------|---------|--------|----------------|\n| 1 | ai_&_big_data | 7.0 | AI | Very strong cohesion |\n| 2 | a16z_portfolio | 5.5 | VC_Portfolio | Strong cohesion |\n| 3 | ai_agents | 5.4 | AI | Strong cohesion |\n| 4 | ai_agent_launchpad | 4.0 | AI | Moderate-strong |\n| 5 | ip_memes | 3.6 | Memes | Moderate cohesion |\n| 6 | ai_memes | 3.1 | AI | Moderate cohesion |\n| 7 | fenbushi_capital_portfolio | 2.0 | VC_Portfolio | Moderate |\n\n**Cohesion Interpretation Guide**:\n- Fiedler ≥ 7.5: Very strong (tokens move together - TIER 1)\n- Fiedler 3.0-7.5: Strong (TIER 2)\n- Fiedler 1.0-3.0: Moderate (TIER 3)\n- Fiedler < 1.0: Weak (dispersed category - TIER 4)\n\n---"
+    },
+    {
+      "question": "Which TIER 1 categories should I focus on?",
+      "answer": "**Answer**: Highest quality categories passing combined score filter\n\n| Category | Combined Score | Fiedler | Recommendation |\n|----------|----------------|---------|----------------|\n| fenbushi_capital_portfolio | 0.414 | 2.0 | Focus - VC picks |\n| ledgerprime_portfolio | 0.335 | 1.0 | VC exposure |\n| hacken_foundation | 0.304 | 1.0 | Security focus |\n| social_token | 0.298 | 0.0 | Social tokens |\n| zero_knowledge_proofs | 0.281 | 1.0 | Privacy/ZK |\n| ai_memes | 0.257 | 3.1 | AI + memes |\n| cybersecurity | 0.251 | 1.9 | Security |\n| ip_memes | 0.236 | 3.6 | Meme coins |\n\n**Dashboard**: Signals tab → TIER breakdown\n\n---"
+    },
+    {
+      "question": "Which categories failed quality filtering?",
+      "answer": "**Answer**: Categories with low combined scores (TIER 4)\n\n| Category | Score | Fiedler | Reason |\n|----------|-------|---------|--------|\n| account_abstraction | -0.031 | 0.0 | Weak cohesion + negative momentum |\n| USD stablecoins | ~0 | ~0 | No rotation value |\n| Many smaller categories | < 0 | < 1.0 | Negative momentum |\n\n**Note**: 421 tokens classified as TIER 4 - these have weak cohesion or negative momentum\n\n---"
+    },
+    {
+      "question": "What's the current tier distribution?",
+      "answer": "**Answer**: From consolidated analysis (2026-02-02)\n\n| Tier | Token Count | % | Action |\n|------|-------------|---|--------|\n| Tier 1 | 225 | 14.9% | AGGRESSIVE BUY |\n| Tier 2 | 512 | 34.0% | ACCUMULATE |\n| Tier 3 | 348 | 23.1% | RESEARCH |\n| Tier 4 | 421 | 28.0% | MONITOR |\n\n**Total**: 1,506 tokens across 228 categories\n\n---\n\n## Risk Assessment Questions"
+    },
+    {
+      "question": "Which tokens have highest volatility risk?",
+      "answer": "**Answer**: High volatility tokens to watch\n\n| Token | Category | Volatility | Recent Return |\n|-------|----------|------------|---------------|\n| RLY | ledgerprime_portfolio | 120.2% | +214.6% |\n| AI16Z | ai_memes | 49.1% | +60.5% |\n| ZEREBRO | ai_memes | 49.1% | +60.5% |\n| UXLINK | social_token | 34.8% | -50.0% |\n\n**Interpretation**: High volatility = larger swings, adjust position size accordingly\n\n---"
+    },
+    {
+      "question": "Which categories have weak cohesion (avoid sector plays)?",
+      "answer": "**Answer**: Fiedler < 1.0 indicates weak cohesion\n\n| Category | Fiedler | Risk |\n|----------|---------|------|\n| account_abstraction | 0.0 | Very weak |\n| social_token | 0.0 | Very weak |\n| retail | 0.0 | Very weak |\n| pump_fun_ecosystem | 1.0 | Borderline |\n\n**Implication**: Low cohesion means tokens in category don't move together - use individual token selection\n\n---"
+    },
+    {
+      "question": "What are the biggest losers (negative momentum)?",
+      "answer": "**Answer**: Categories with negative momentum\n\n| Category | Momentum | Action |\n|----------|----------|--------|\n| social_token | -38.6% | AVOID |\n| ai_agents | -33.1% | CAUTION |\n| zero_knowledge_proofs | -28.9% | RESEARCH |\n| ai_applications | -22.5% | RESEARCH |\n\n**Note**: Negative momentum doesn't always mean avoid - check combined score\n\n---\n\n## Historical Performance Questions"
+    },
+    {
+      "question": "Which VC portfolio categories perform best?",
+      "answer": "**Answer**: VC-backed category performance\n\n| Category | Score | Tokens |\n|----------|-------|--------|\n| fenbushi_capital_portfolio | 0.414 | ZEC, VET, DOT, ICP, SC, BICO |\n| ledgerprime_portfolio | 0.335 | RLY, CVP, FLOW, RGT, SFI |\n| a16z_portfolio | -0.043 | Various |\n\n**Note**: VC portfolios show high trend scores but mixed momentum\n\n---"
+    },
+    {
+      "question": "How do tokenized gold tokens perform?",
+      "answer": "**Answer**: Tokenized gold category (SuperTrend candidates)\n\n| Token | Signal | Deviation |\n|-------|--------|-----------|\n| VNXAU | BB Crossover | +12.5% |\n| PAXG | BB Crossover | +8.2% |\n| XAUT | BB Crossover | +7.8% |\n\n**Note**: Tokenized gold showing strong BB crossover signals\n\n---"
+    },
+    {
+      "question": "What categories should I avoid?",
+      "answer": "**Answer**: Negative combined score categories\n\n| Category | Score | Momentum | Recommendation |\n|----------|-------|----------|----------------|\n| social_token | 0.298 | -38.6% | High risk |\n| ai_agents | -0.152 | -33.1% | Declining |\n| ai_applications | -0.034 | -22.5% | Weak |\n\n---\n\n## Portfolio Construction Questions"
+    },
+    {
+      "question": "How to prioritize between SuperTrend and Category picks?",
+      "answer": "**Answer**: Use priority tiers\n\n| Priority | Strategy | Criteria | Rationale |\n|----------|----------|----------|-----------|\n| HIGH | SuperTrend | BB crossover + min $5 | Technical breakout |\n| MEDIUM | TIER 1 | Combined score > 0.20 | Category rotation |\n| LOW | TIER 2 | Score 0.10-0.20 | Accumulation zone |\n\n**Suggested Allocation**:\n- 30-40% to SuperTrend (BB crossover) - currently 6 tokens\n- 40-50% to TIER 1 categories\n- 10-20% to TIER 2 selective\n\n---"
+    },
+    {
+      "question": "Which categories have overlap (diversification risk)?",
+      "answer": "**Answer**: Multi-category exposure tokens\n\n| Token | Categories | Risk |\n|-------|------------|------|\n| ZEC | zero_knowledge_proofs, fenbushi | Correlated |\n| RLY | ledgerprime, social_token | Correlated |\n| HAPI | hacken_foundation, cybersecurity | Correlated |\n| AI16Z | ai_memes, ai_agents | Correlated |\n\n**Implication**: Holding overlapping tokens reduces diversification benefit\n\n---"
+    },
+    {
+      "question": "How many tokens passed all quality filters?",
+      "answer": "**Answer**: Filtering pipeline summary\n\n| Stage | Count | Pass Rate |\n|-------|-------|-----------|\n| Universe | 1,506 | 100% |\n| BB Crossover (SuperTrend) | 6 | 0.4% |\n| TIER 1 (Aggressive Buy) | 225 | 14.9% |\n| TIER 2 (Accumulate) | 512 | 34.0% |\n| Final Actionable (T1+T2) | 737 | 48.9% |\n\n---\n\n## Questions NOT Answerable (Need Additional Analysis)\n\n| Question | Missing Data | How to Get |\n|----------|--------------|------------|\n| Exact on-chain metrics? | Blockchain data | Use DeFiLlama, Dune |\n| Trading volume analysis? | Volume data | CoinGecko API |\n| Optimal position sizing? | Portfolio constraints | Risk management model |\n| Smart contract risk? | Audit reports | Security audit providers |\n| Exchange liquidity? | Order book data | Exchange APIs |\n| Intraday entry timing? | Tick data | Real-time data feed |\n\n---\n\n## Quick Reference: Data File Locations\n\n| Data | File Path |\n|------|-----------|\n| Actionable tickers | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/actionable_tickers_*.csv` |\n| Consolidated analysis | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/consolidated_ticker_analysis_*.json` |\n| Tier 1 tokens | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/tier1_buy_now_*.csv` |\n| Combined score ranking | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/combined_score_ranking_*.csv` |\n| Category mapping | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/theme_ticker_master.csv` |\n| Price data | `/mnt/nas/AutoGluon/AutoML_Crypto/CRYPTONOTTRAINED/` |\n\n---\n\n## Dashboard Navigation\n\n| Tab | URL | Key Feature |\n|-----|-----|-------------|\n| Overview | http://localhost:8003/ | Market summary, top categories |\n| Breakout | http://localhost:8003/breakout.html | SuperTrend + Breakout candidates |\n| Signals | http://localhost:8003/signals.html | Quality funnel, TIER breakdown |\n| Cohesion | http://localhost:8003/cohesion.html | Category cohesion analysis |\n| Network | http://localhost:8003/network.html | Category network visualization |\n\n---\n\n*Generated: 2026-02-02*\n*Analysis Framework: Sector-Rotation-Crypto*\n*Dashboard: http://localhost:8003*"
+    }
+  ]
+}
