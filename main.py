@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 
-from etf_routes import router as etf_router, load_etf_data
+from etf_routes import router as etf_router, load_etf_data, _data as etf_data
 
 # Initialize
 app = FastAPI(title="WWAI Chat API", version="1.0.0")
@@ -100,7 +100,12 @@ MARKETS = {
         "path": None,
         "keywords": ["etf", "classify", "holdings", "theme", "ticker",
                       "spy", "qqq", "vti", "agg", "tlt", "gld", "voo",
-                      "future etf", "novel", "etf idea", "etf 테마", "etf 분류"],
+                      "future etf", "novel", "etf idea", "etf 테마", "etf 분류",
+                      "construct", "component", "candidate", "build etf",
+                      "next gen", "next-gen", "space", "quantum", "autonomous",
+                      "strategic material", "frontier", "first mover",
+                      "pioneer", "concept etf", "new etf", "create etf",
+                      "구성종목", "후보", "신규 etf", "차세대"],
         "dashboard": "/etf-intelligence.html"
     }
 }
@@ -231,6 +236,415 @@ def find_relevant_qa(market_id: str, question: str) -> Optional[Dict[str, str]]:
     return best_match if best_score >= 2 else None
 
 
+def handle_etf_construct(message: str, language: str) -> Optional[str]:
+    """Handle 'construct ETF' / 'component candidate' queries using frontier data."""
+    from etf_routes import _data as etf_store
+
+    frontier = etf_store.get("frontier", {})
+    if not frontier:
+        return None
+
+    msg = message.lower()
+
+    # Detect if this is a construct/component/candidate query
+    construct_keywords = [
+        "construct", "component", "candidate", "build etf", "create etf",
+        "new etf", "novel etf", "make etf", "design etf",
+        "what stocks", "which stocks", "etf idea",
+        "구성종목", "후보", "신규", "만들", "구성",
+        "first mover", "pioneer", "concept",
+    ]
+    is_construct = any(kw in msg for kw in construct_keywords)
+    if not is_construct:
+        return None
+
+    # Theme matching - map query terms to theme names
+    theme_aliases = {
+        "next gen energy": "Next-Gen Energy",
+        "next-gen energy": "Next-Gen Energy",
+        "next gen": "Next-Gen Energy",
+        "next-gen": "Next-Gen Energy",
+        "clean energy": "Next-Gen Energy",
+        "renewable": "Next-Gen Energy",
+        "차세대 에너지": "Next-Gen Energy",
+        "space": "Space & Satellite",
+        "satellite": "Space & Satellite",
+        "aerospace": "Space & Satellite",
+        "우주": "Space & Satellite",
+        "위성": "Space & Satellite",
+        "quantum": "Quantum Communication",
+        "양자": "Quantum Communication",
+        "autonomous": "AI & Autonomous Systems",
+        "self-driving": "AI & Autonomous Systems",
+        "robotics": "AI & Autonomous Systems",
+        "drone": "AI & Autonomous Systems",
+        "자율주행": "AI & Autonomous Systems",
+        "로봇": "AI & Autonomous Systems",
+        "sustainable space": "Sustainable Space Economy",
+        "orbital": "Sustainable Space Economy",
+        "space economy": "Sustainable Space Economy",
+        "strategic material": "Strategic Materials",
+        "rare earth": "Strategic Materials",
+        "critical mineral": "Strategic Materials",
+        "전략 소재": "Strategic Materials",
+        "희토류": "Strategic Materials",
+        "technology": "Technology & AI",
+        "tech": "Technology & AI",
+        "ai ": "Technology & AI",
+        "기술": "Technology & AI",
+        "biotech": "Biotech & Healthcare",
+        "healthcare": "Biotech & Healthcare",
+        "바이오": "Biotech & Healthcare",
+        "헬스케어": "Biotech & Healthcare",
+        "crypto": "Crypto & Digital Assets",
+        "digital asset": "Crypto & Digital Assets",
+        "bitcoin": "Crypto & Digital Assets",
+        "암호화폐": "Crypto & Digital Assets",
+        "real estate": "Real Estate",
+        "reit": "Real Estate",
+        "부동산": "Real Estate",
+        "commodity": "Commodities & Energy",
+        "energy": "Commodities & Energy",
+        "oil": "Commodities & Energy",
+        "gold": "Commodities & Energy",
+        "원자재": "Commodities & Energy",
+        "에너지": "Commodities & Energy",
+        "financial": "Financial Services",
+        "bank": "Financial Services",
+        "금융": "Financial Services",
+        "dividend": "Dividend & Income",
+        "income": "Dividend & Income",
+        "배당": "Dividend & Income",
+        "consumer": "Consumer & Retail",
+        "retail": "Consumer & Retail",
+        "소비재": "Consumer & Retail",
+        "infrastructure": "Infrastructure & Industry",
+        "industry": "Infrastructure & Industry",
+        "인프라": "Infrastructure & Industry",
+        "inverse": "Inverse & Leveraged",
+        "leveraged": "Inverse & Leveraged",
+        "레버리지": "Inverse & Leveraged",
+        "인버스": "Inverse & Leveraged",
+        "bond": "Fixed Income & Bonds",
+        "fixed income": "Fixed Income & Bonds",
+        "treasury": "Fixed Income & Bonds",
+        "채권": "Fixed Income & Bonds",
+    }
+
+    # Find matched theme (longer aliases first to avoid substring collisions)
+    matched_theme = None
+    for alias, theme_name in sorted(theme_aliases.items(), key=lambda x: len(x[0]), reverse=True):
+        if alias in msg:
+            matched_theme = theme_name
+            break
+
+    # If "first mover" query without specific theme, return all first-mover data
+    if not matched_theme and ("first mover" in msg or "pioneer" in msg):
+        return _format_first_mover_overview(frontier, language)
+
+    # If no theme matched, return general construct guidance
+    if not matched_theme:
+        return _format_construct_guidance(frontier, language)
+
+    # Build response for the matched theme
+    return _format_theme_construct(frontier, matched_theme, etf_store, language)
+
+
+def _format_theme_construct(frontier: dict, theme: str, etf_store: dict, language: str) -> str:
+    """Format a construct-ETF response for a specific theme."""
+    lifecycle = frontier.get("lifecycle", {})
+    pre_launch = frontier.get("pre_launch", [])
+    blue_ocean = frontier.get("blue_ocean", [])
+    first_mover = frontier.get("first_mover_stocks", [])
+    theme_dist = etf_store.get("theme_distribution", {})
+    etf_count = theme_dist.get(theme, 0)
+
+    # Determine lifecycle stage
+    stage = "unknown"
+    stage_data = None
+    for s in ["concept", "pioneer", "growth", "mature"]:
+        for item in lifecycle.get(s, []):
+            if item["theme"] == theme:
+                stage = s
+                stage_data = item
+                break
+        if stage_data:
+            break
+
+    ko = language == "ko"
+
+    lines = []
+    if ko:
+        lines.append(f"## 📊 {theme} ETF 구성 분석\n")
+    else:
+        lines.append(f"## 📊 {theme} — ETF Construction Analysis\n")
+
+    # Stage info
+    stage_labels = {
+        "concept": ("🔮 Concept (0 ETFs)", "🔮 컨셉 단계 (ETF 0개)"),
+        "pioneer": ("🚀 Pioneer (1-10 ETFs)", "🚀 파이오니어 단계 (1-10개 ETF)"),
+        "growth": ("📈 Growth (10-100 ETFs)", "📈 성장 단계 (10-100개 ETF)"),
+        "mature": ("🏛️ Mature (100+ ETFs)", "🏛️ 성숙 단계 (100개+ ETF)"),
+    }
+    label = stage_labels.get(stage, ("Unknown", "알 수 없음"))
+    if ko:
+        lines.append(f"**라이프사이클**: {label[1]} — 현재 {etf_count}개 ETF\n")
+    else:
+        lines.append(f"**Lifecycle Stage**: {label[0]} — Currently {etf_count} ETFs\n")
+
+    # Existing ETFs (if any)
+    if stage_data and stage_data.get("tickers"):
+        tickers = stage_data["tickers"]
+        if ko:
+            lines.append(f"### 기존 ETF ({len(tickers)}개)")
+        else:
+            lines.append(f"### Existing ETFs ({len(tickers)})")
+        for t in tickers[:8]:
+            name = t.get("name", "")
+            aum = t.get("aum", "")
+            lines.append(f"• **{t['ticker']}** — {name} ({aum})")
+        lines.append("")
+
+    # Candidate stocks
+    if stage_data and stage_data.get("candidate_stocks"):
+        stocks = stage_data["candidate_stocks"]
+        if ko:
+            lines.append(f"### 🧬 후보 종목 (DNA 분석 기반, {len(stocks)}개)")
+            lines.append("이 종목들은 프론티어 DNA 분석에서 해당 테마에 대한 높은 관련성을 보입니다:\n")
+        else:
+            lines.append(f"### 🧬 Candidate Stocks (DNA Analysis, {len(stocks)})")
+            lines.append("These stocks show high thematic relevance from frontier DNA analysis:\n")
+        lines.append(", ".join(f"**{s}**" for s in stocks))
+        lines.append("")
+
+    # Pre-launch details (for concept themes)
+    for pl in pre_launch:
+        if pl["theme"] == theme:
+            desc = pl.get("description", "")
+            if desc:
+                if ko:
+                    lines.append(f"### 📋 테마 설명")
+                else:
+                    lines.append(f"### 📋 Theme Description")
+                lines.append(f"{desc}\n")
+            stocks = pl.get("stocks", [])
+            if stocks and not (stage_data and stage_data.get("candidate_stocks")):
+                if ko:
+                    lines.append(f"### 🧬 후보 종목 ({len(stocks)}개)")
+                else:
+                    lines.append(f"### 🧬 Candidate Stocks ({len(stocks)})")
+                for s in stocks:
+                    rel = s.get("relevance", "")
+                    tag = " ⭐" if rel == "primary" else ""
+                    lines.append(f"• **{s['ticker']}**{tag}")
+                lines.append("")
+            break
+
+    # Blue ocean overlap
+    for bo in blue_ocean:
+        if bo["theme"] == theme:
+            bo_tickers = [t["ticker"] for t in bo.get("tickers", [])]
+            if bo_tickers:
+                if ko:
+                    lines.append(f"### 🌊 블루오션 기회")
+                    lines.append(f"이 테마는 아직 경쟁이 적은 블루오션 영역입니다.")
+                else:
+                    lines.append(f"### 🌊 Blue Ocean Opportunity")
+                    lines.append(f"This theme has limited competition — a blue ocean zone.")
+                lines.append(f"ETFs: {', '.join(bo_tickers)}\n")
+            break
+
+    # First-mover stocks relevant to this theme
+    if stage in ("pioneer", "concept"):
+        relevant_fm = []
+        pioneer_tickers = set()
+        for item in lifecycle.get("pioneer", []):
+            if item["theme"] == theme:
+                pioneer_tickers = {t["ticker"] for t in item.get("tickers", [])}
+                break
+        for fm in first_mover:
+            etf_list = fm.get("etfs", [])
+            if any(e in pioneer_tickers for e in etf_list):
+                relevant_fm.append(fm)
+        if relevant_fm:
+            if ko:
+                lines.append(f"### 🏆 퍼스트무버 핵심 종목")
+            else:
+                lines.append(f"### 🏆 First-Mover Key Stocks")
+            for fm in relevant_fm[:5]:
+                lines.append(f"• **{fm['ticker']}** — {fm['etf_count']} ETFs, avg weight {fm['avg_weight']}%")
+            lines.append("")
+
+    # For growth/mature themes, show top holdings from a representative ETF
+    if stage in ("growth", "mature") and stage_data and stage_data.get("tickers"):
+        top_etf_ticker = stage_data["tickers"][0]["ticker"]
+        etf_lookup = etf_store.get("etf_lookup", {})
+        etf_info = etf_lookup.get(top_etf_ticker, {})
+        top_h = etf_info.get("top_holdings", [])
+        if top_h:
+            if ko:
+                lines.append(f"### 📊 대표 ETF ({top_etf_ticker}) 상위 보유 종목")
+            else:
+                lines.append(f"### 📊 Top Holdings of {top_etf_ticker} (Largest ETF)")
+            for h in top_h[:5]:
+                lines.append(f"• **{h['symbol']}** ({h['name']}) — {h['weight']}%")
+            lines.append("")
+
+    # Dashboard link
+    if ko:
+        lines.append("더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html")
+    else:
+        lines.append("Explore more on the dashboard: /etf-intelligence.html")
+
+    return "\n".join(lines)
+
+
+def _format_first_mover_overview(frontier: dict, language: str) -> str:
+    """Format first-mover overview response."""
+    first_mover = frontier.get("first_mover_stocks", [])
+    lifecycle = frontier.get("lifecycle", {})
+    ko = language == "ko"
+
+    lines = []
+    if ko:
+        lines.append("## 🏆 퍼스트무버 핵심 종목 분석\n")
+        lines.append("파이오니어 단계(1-10개 ETF) 테마의 핵심 종목입니다:\n")
+    else:
+        lines.append("## 🏆 First-Mover Key Stocks\n")
+        lines.append("Stocks appearing across multiple pioneer-stage ETFs:\n")
+
+    for fm in first_mover[:10]:
+        etfs = ", ".join(fm.get("etfs", [])[:4])
+        lines.append(f"• **{fm['ticker']}** — {fm['etf_count']} ETFs (avg {fm['avg_weight']}%) [{etfs}]")
+
+    lines.append("")
+    # Pioneer themes
+    pioneer = lifecycle.get("pioneer", [])
+    if pioneer:
+        if ko:
+            lines.append("### 파이오니어 테마")
+        else:
+            lines.append("### Pioneer Themes")
+        for p in pioneer:
+            tickers = [t["ticker"] for t in p.get("tickers", [])[:5]]
+            lines.append(f"• **{p['theme']}** ({p['count']} ETFs): {', '.join(tickers)}")
+
+    if ko:
+        lines.append("\n더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html")
+    else:
+        lines.append("\nExplore more on the dashboard: /etf-intelligence.html")
+
+    return "\n".join(lines)
+
+
+def _format_construct_guidance(frontier: dict, language: str) -> str:
+    """Format general construct ETF guidance when no specific theme matched."""
+    lifecycle = frontier.get("lifecycle", {})
+    ko = language == "ko"
+
+    lines = []
+    if ko:
+        lines.append("## 📊 ETF 구성 가이드\n")
+        lines.append("테마를 지정하면 해당 테마의 ETF 구성 후보를 알려드립니다.\n")
+        lines.append("### 사용 가능한 테마:")
+    else:
+        lines.append("## 📊 ETF Construction Guide\n")
+        lines.append("Specify a theme to get ETF component candidates.\n")
+        lines.append("### Available Themes:")
+
+    for stage_name, label_en, label_ko in [
+        ("concept", "Concept (No ETFs yet)", "컨셉 (ETF 없음)"),
+        ("pioneer", "Pioneer (1-10 ETFs)", "파이오니어 (1-10 ETF)"),
+        ("growth", "Growth (10-100 ETFs)", "성장 (10-100 ETF)"),
+    ]:
+        items = lifecycle.get(stage_name, [])
+        if items:
+            label = label_ko if ko else label_en
+            lines.append(f"\n**{label}**:")
+            for it in items:
+                lines.append(f"• {it['theme']} ({it['count']} ETFs)")
+
+    if ko:
+        lines.append("\n예시: \"next gen energy ETF 구성종목 후보는?\"")
+        lines.append("예시: \"space satellite ETF candidate stocks?\"")
+        lines.append("\n더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html")
+    else:
+        lines.append("\nExample: \"What are next gen energy ETF component candidates?\"")
+        lines.append("Example: \"Space satellite ETF candidate stocks?\"")
+        lines.append("\nExplore more on the dashboard: /etf-intelligence.html")
+
+    return "\n".join(lines)
+
+
+def handle_etf_ticker_lookup(message: str, language: str) -> Optional[str]:
+    """Handle direct ETF ticker lookup queries like 'what theme is QQQ?'"""
+    from etf_routes import _data as etf_store
+
+    lookup = etf_store.get("etf_lookup", {})
+    if not lookup:
+        return None
+
+    msg_upper = message.upper()
+    # Extract potential tickers (2-5 uppercase alpha)
+    potential_tickers = re.findall(r'\b([A-Z]{2,5})\b', msg_upper)
+
+    # Filter to actual ETF tickers
+    found = []
+    skip_words = {"ETF", "THE", "AND", "FOR", "ARE", "HAS", "HOW", "WHO", "WHY",
+                  "WHAT", "WHICH", "DOES", "THIS", "THAT", "WITH", "FROM", "HAVE",
+                  "WILL", "CAN", "ALL", "TOP", "NEW", "NOT", "BUT"}
+    for t in potential_tickers:
+        if t in lookup and t not in skip_words:
+            found.append(t)
+
+    if not found:
+        return None
+
+    ko = language == "ko"
+    lines = []
+
+    for ticker in found[:3]:
+        info = lookup[ticker]
+        theme = info.get("theme", "Unknown")
+        conf = info.get("confidence", "")
+        fund_name = info.get("fund_name", "")
+        aum = info.get("aum", "")
+        expense = info.get("expense_ratio", "")
+        category = info.get("category", "")
+        holdings = info.get("top_holdings", [])
+        dna = info.get("dna_themes", [])
+
+        if ko:
+            lines.append(f"**{ticker}** ({fund_name})")
+            lines.append(f"• 테마: **{theme}**")
+            lines.append(f"• 카테고리: {category}")
+            lines.append(f"• AUM: {aum} | 보수: {expense}")
+            if dna:
+                lines.append(f"• DNA 테마: {', '.join(dna)}")
+            if holdings:
+                top5 = ", ".join(f"{h['symbol']} {h['weight']}%" for h in holdings[:5])
+                lines.append(f"• 상위 보유: {top5}")
+        else:
+            lines.append(f"**{ticker}** ({fund_name})")
+            lines.append(f"• Theme: **{theme}**")
+            lines.append(f"• Category: {category}")
+            lines.append(f"• AUM: {aum} | Expense: {expense}")
+            if dna:
+                lines.append(f"• DNA Themes: {', '.join(dna)}")
+            if holdings:
+                top5 = ", ".join(f"{h['symbol']} {h['weight']}%" for h in holdings[:5])
+                lines.append(f"• Top Holdings: {top5}")
+
+        lines.append("")
+
+    if ko:
+        lines.append("더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html")
+    else:
+        lines.append("Explore more on the dashboard: /etf-intelligence.html")
+
+    return "\n".join(lines)
+
+
 def paraphrase_answer(question: str, qa_content: Dict[str, str], market_config: Dict, language: str) -> str:
     """Use OpenAI to paraphrase the answer in a conversational way"""
 
@@ -345,6 +759,30 @@ async def chat_message(request: ChatRequest):
     # Detect market
     market_id = detect_market(message)
     market_config = MARKETS[market_id]
+
+    # ETF market: try construct handler and ticker lookup before QA
+    if market_id == "etf":
+        # 1. Try construct ETF handler (component/candidate queries)
+        construct_response = handle_etf_construct(message, request.language)
+        if construct_response:
+            return ChatResponse(
+                response=construct_response,
+                market=market_id,
+                market_name=market_config['name'],
+                dashboard_url=market_config['dashboard'],
+                conversation_id=request.conversation_id
+            )
+
+        # 2. Try direct ticker lookup
+        ticker_response = handle_etf_ticker_lookup(message, request.language)
+        if ticker_response:
+            return ChatResponse(
+                response=ticker_response,
+                market=market_id,
+                market_name=market_config['name'],
+                dashboard_url=market_config['dashboard'],
+                conversation_id=request.conversation_id
+            )
 
     # Find relevant QA
     qa_match = find_relevant_qa(market_id, message)
