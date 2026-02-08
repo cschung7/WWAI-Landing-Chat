@@ -196,18 +196,20 @@ async def active_etfs():
 
 @router.get("/frontier")
 async def frontier_themes():
-    """Get frontier themes and novel clusters info."""
+    """Get frontier data: lifecycle, blue ocean, pre-launch, hidden concentration."""
+    frontier = _data.get("frontier", {})
+    if frontier:
+        return frontier
+
+    # Fallback if frontier not in JSON (legacy data)
     dist = _data.get("theme_distribution", {})
     core_themes = sorted(dist.items(), key=lambda x: x[1], reverse=True)
-    frontier_themes = ["AI & Autonomous Systems", "Cybersecurity & Privacy", "Infrastructure & Industry"]
-
     return {
-        "core_theme_count": len(core_themes),
+        "lifecycle": {},
+        "blue_ocean": [],
+        "pre_launch": [],
+        "hidden_concentration": [],
         "core_themes": [{"theme": t, "count": c} for t, c in core_themes],
-        "frontier_themes": frontier_themes,
-        "description": "Frontier themes represent emerging thematic areas beyond the 15 core classifications. "
-                       "These include AI & Autonomous Systems (beyond broad Tech & AI), "
-                       "Cybersecurity & Privacy, and Infrastructure & Industry specializations."
     }
 
 
