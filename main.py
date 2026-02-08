@@ -10,8 +10,17 @@ from pathlib import Path
 from typing import Optional, Dict, List, Any
 from datetime import datetime
 
-import httpx
-from dotenv import load_dotenv
+try:
+    import httpx
+except ImportError:
+    httpx = None
+    print("WARNING: httpx not installed — research pipeline disabled")
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    load_dotenv = None
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -21,7 +30,7 @@ from etf_routes import router as etf_router, load_etf_data, _data as etf_data
 
 # Load API keys from .env (local dev); on Railway, env vars are set directly
 _env_path = Path("/mnt/nas/gpt/.env")
-if _env_path.exists():
+if load_dotenv and _env_path.exists():
     load_dotenv(_env_path)
 
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")
@@ -746,8 +755,8 @@ class ResearchRequest(BaseModel):
 
 async def perplexity_search(query: str, language: str = "ko") -> str:
     """Stage 1: Use Perplexity to search for relevant ETF/investment info."""
-    if not PERPLEXITY_API_KEY:
-        print("WARNING: PERPLEXITY_API_KEY not set, skipping search")
+    if not httpx or not PERPLEXITY_API_KEY:
+        print("WARNING: httpx or PERPLEXITY_API_KEY not available, skipping search")
         return ""
 
     lang_instruction = "Answer in Korean." if language == "ko" else "Answer in English."
@@ -789,8 +798,8 @@ async def gemini_synthesize(
     question: str, search_results: str, internal_context: str, language: str = "ko"
 ) -> str:
     """Stage 2: Use Gemini to synthesize Perplexity results + internal data."""
-    if not GEMINI_API_KEY:
-        print("WARNING: GOOGLE_GEMINI_API_KEY not set, returning raw search results")
+    if not httpx or not GEMINI_API_KEY:
+        print("WARNING: httpx or GOOGLE_GEMINI_API_KEY not available")
         return search_results or "Research unavailable — API key not configured."
 
     lang_text = "Korean" if language == "ko" else "English"
