@@ -10,12 +10,22 @@ from pathlib import Path
 from typing import Optional, Dict, List, Any
 from datetime import datetime
 
+import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 
 from etf_routes import router as etf_router, load_etf_data, _data as etf_data
+
+# Load API keys from .env (local dev); on Railway, env vars are set directly
+_env_path = Path("/mnt/nas/gpt/.env")
+if _env_path.exists():
+    load_dotenv(_env_path)
+
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GOOGLE_GEMINI_API_KEY", "")
 
 # Initialize
 app = FastAPI(title="WWAI Chat API", version="1.0.0")
@@ -342,9 +352,9 @@ def handle_etf_construct(message: str, language: str) -> Optional[str]:
     if not matched_theme and ("first mover" in msg or "pioneer" in msg):
         return _format_first_mover_overview(frontier, language)
 
-    # If no theme matched, return general construct guidance
+    # If no theme matched, return None to trigger Perplexity+Gemini research path
     if not matched_theme:
-        return _format_construct_guidance(frontier, language)
+        return None
 
     # Build response for the matched theme
     return _format_theme_construct(frontier, matched_theme, etf_store, language)
@@ -724,6 +734,223 @@ class ChatResponse(BaseModel):
     market_name: str
     dashboard_url: str
     conversation_id: Optional[str] = None
+    needs_research: bool = False
+    original_question: str = ""
+
+
+class ResearchRequest(BaseModel):
+    question: str
+    language: str = "ko"
+    conversation_id: Optional[str] = None
+
+
+async def perplexity_search(query: str, language: str = "ko") -> str:
+    """Stage 1: Use Perplexity to search for relevant ETF/investment info."""
+    if not PERPLEXITY_API_KEY:
+        print("WARNING: PERPLEXITY_API_KEY not set, skipping search")
+        return ""
+
+    lang_instruction = "Answer in Korean." if language == "ko" else "Answer in English."
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            response = await client.post(
+                "https://api.perplexity.ai/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "sonar",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are a financial ETF research assistant. "
+                                "Search for ETF, investment, and market information. "
+                                "Provide specific ticker symbols, fund names, AUM, expense ratios, "
+                                "and key characteristics when available. "
+                                "Focus on US-listed ETFs. " + lang_instruction
+                            )
+                        },
+                        {"role": "user", "content": query}
+                    ],
+                    "max_tokens": 1000
+                }
+            )
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            print(f"Perplexity search error: {e}")
+            return ""
+
+
+async def gemini_synthesize(
+    question: str, search_results: str, internal_context: str, language: str = "ko"
+) -> str:
+    """Stage 2: Use Gemini to synthesize Perplexity results + internal data."""
+    if not GEMINI_API_KEY:
+        print("WARNING: GOOGLE_GEMINI_API_KEY not set, returning raw search results")
+        return search_results or "Research unavailable — API key not configured."
+
+    lang_text = "Korean" if language == "ko" else "English"
+
+    prompt = f"""You are WWAI ETF Intelligence Assistant, an expert on US-listed ETFs.
+Synthesize the external research and internal data below to answer the user's question.
+
+## User Question
+{question}
+
+## External Research (Perplexity)
+{search_results if search_results else "No external research available."}
+
+## Internal ETF Intelligence (WWAI Database — 2,741 classified ETFs, 15 themes)
+{internal_context}
+
+## Response Rules
+1. Combine external + internal data for a comprehensive answer
+2. Recommend specific ETF tickers with key metrics (AUM, expense ratio) when possible
+3. If the user asks "existing ETF vs create new", analyze BOTH options clearly
+4. List top 3-5 recommended ETFs with brief one-line explanations
+5. If suggesting new ETF construction, explain what gap it fills and list candidate stocks
+6. Respond in {lang_text}
+7. Keep response concise (under 350 words)
+8. Use bullet points and **bold** for tickers
+9. End with: "더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html" (Korean) or "Explore more on the dashboard: /etf-intelligence.html" (English)
+
+Respond now:"""
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            response = await client.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "temperature": 0.7,
+                        "maxOutputTokens": 800
+                    }
+                }
+            )
+            data = response.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print(f"Gemini synthesis error: {e}")
+            # Fallback: return Perplexity results directly
+            return search_results if search_results else "Research synthesis failed."
+
+
+def _gather_internal_context(question: str) -> str:
+    """Gather relevant internal ETF data to enrich research answers."""
+    from etf_routes import _data as etf_store
+
+    lines = []
+
+    # Theme distribution summary
+    dist = etf_store.get("theme_distribution", {})
+    if dist:
+        lines.append("WWAI 15 Master Themes (ETF count):")
+        for theme, count in sorted(dist.items(), key=lambda x: x[1], reverse=True)[:10]:
+            lines.append(f"  {theme}: {count}")
+
+    # Try keyword search in ETF fund names/categories
+    lookup = etf_store.get("etf_lookup", {})
+    if lookup:
+        msg_lower = question.lower()
+        # Bilingual keyword extraction
+        search_terms = _extract_search_terms(msg_lower)
+        matched_etfs = []
+        for ticker, info in lookup.items():
+            name = (info.get("fund_name", "") or "").lower()
+            cat = (info.get("category", "") or "").lower()
+            theme = (info.get("theme", "") or "").lower()
+            if any(term in name or term in cat or term in theme for term in search_terms):
+                matched_etfs.append(info)
+                if len(matched_etfs) >= 8:
+                    break
+
+        if matched_etfs:
+            lines.append(f"\nRelevant ETFs from WWAI database ({len(matched_etfs)} found):")
+            for etf in matched_etfs:
+                lines.append(
+                    f"  {etf.get('ticker')}: {etf.get('fund_name')} | "
+                    f"Theme: {etf.get('theme')} | AUM: {etf.get('aum')} | "
+                    f"Expense: {etf.get('expense_ratio')}"
+                )
+
+    # Frontier/lifecycle info
+    frontier = etf_store.get("frontier", {})
+    if frontier:
+        lifecycle = frontier.get("lifecycle", {})
+        pioneer = lifecycle.get("pioneer", [])
+        concept = lifecycle.get("concept", [])
+        if pioneer or concept:
+            lines.append("\nFrontier themes (emerging/new):")
+            for item in concept[:5]:
+                lines.append(f"  [Concept] {item['theme']} ({item['count']} ETFs)")
+            for item in pioneer[:5]:
+                lines.append(f"  [Pioneer] {item['theme']} ({item['count']} ETFs)")
+
+    return "\n".join(lines) if lines else "No specific internal data for this query."
+
+
+# Bilingual concept mapping for internal ETF search
+_CONCEPT_MAP = {
+    "아시아": ["asia", "asian", "pacific"],
+    "개도국": ["emerging", "developing"],
+    "신흥국": ["emerging"],
+    "유럽": ["europe", "european"],
+    "일본": ["japan"],
+    "중국": ["china", "chinese"],
+    "인도": ["india", "indian"],
+    "브라질": ["brazil"],
+    "남미": ["latin", "south america"],
+    "아프리카": ["africa"],
+    "글로벌": ["global", "world", "international"],
+    "선진국": ["developed"],
+    "반도체": ["semiconductor", "chip"],
+    "배터리": ["battery", "ev", "electric"],
+    "로봇": ["robot", "automation"],
+    "우주": ["space", "satellite", "aerospace"],
+    "방위": ["defense", "defence", "military"],
+    "에너지": ["energy", "oil", "gas"],
+    "헬스케어": ["health", "biotech", "pharma"],
+    "기후": ["climate", "clean", "solar", "wind"],
+    "소비재": ["consumer", "retail"],
+    "부동산": ["real estate", "reit"],
+    "금": ["gold", "precious"],
+    "은": ["silver"],
+    "농업": ["agriculture", "agri", "farm"],
+    "인프라": ["infrastructure"],
+    "핀테크": ["fintech"],
+    "사이버": ["cyber", "security"],
+    "메타버스": ["metaverse", "virtual"],
+    "블록체인": ["blockchain", "crypto", "bitcoin"],
+    "ai": ["artificial intelligence", "machine learning"],
+    "수소": ["hydrogen"],
+    "리튬": ["lithium"],
+    "원자력": ["nuclear", "uranium"],
+    "물": ["water"],
+}
+
+
+def _extract_search_terms(text: str) -> list:
+    """Extract bilingual search terms from user question."""
+    terms = []
+
+    # Map Korean concepts to English search terms
+    for ko_word, en_terms in _CONCEPT_MAP.items():
+        if ko_word in text:
+            terms.extend(en_terms)
+
+    # Also extract English words directly from the input
+    en_words = re.findall(r'[a-z]{3,}', text)
+    skip = {"etf", "the", "and", "for", "are", "has", "how", "what", "which",
+            "this", "that", "with", "from", "have", "will", "can", "all", "not"}
+    terms.extend(w for w in en_words if w not in skip)
+
+    return terms if terms else ["broad", "market"]
 
 
 @app.on_event("startup")
@@ -762,7 +989,7 @@ async def chat_message(request: ChatRequest):
 
     # ETF market: try construct handler and ticker lookup before QA
     if market_id == "etf":
-        # 1. Try construct ETF handler (component/candidate queries)
+        # 1. Try construct ETF handler (fast path: lifecycle theme match)
         construct_response = handle_etf_construct(message, request.language)
         if construct_response:
             return ChatResponse(
@@ -790,8 +1017,31 @@ async def chat_message(request: ChatRequest):
     if qa_match:
         # Paraphrase the answer
         response = paraphrase_answer(message, qa_match, market_config, request.language)
+    elif market_id == "etf":
+        # ETF market with no match → offer Perplexity+Gemini research
+        ko = request.language == "ko"
+        confirm_msg = (
+            "이 질문에 대해 정확한 답변을 드리기 위해 "
+            "**AI 리서치** (Perplexity 검색 + Gemini 종합분석)를 진행할 수 있습니다.\n\n"
+            "⏱️ 약 10~15초 소요됩니다.\n\n"
+            "진행할까요?"
+        ) if ko else (
+            "To give you an accurate answer, I can run "
+            "**AI Research** (Perplexity search + Gemini synthesis).\n\n"
+            "⏱️ This takes about 10-15 seconds.\n\n"
+            "Shall I proceed?"
+        )
+        return ChatResponse(
+            response=confirm_msg,
+            market=market_id,
+            market_name=market_config['name'],
+            dashboard_url=market_config['dashboard'],
+            conversation_id=request.conversation_id,
+            needs_research=True,
+            original_question=message,
+        )
     else:
-        # No matching QA - provide general guidance
+        # Non-ETF market with no match
         if request.language == "ko":
             response = f"{market_config['flag']} {market_config['name']} 시장에 대한 구체적인 데이터가 없습니다.\n\n"
             response += f"대시보드에서 최신 분석을 확인해주세요:\n{market_config['dashboard']}\n\n"
@@ -809,6 +1059,38 @@ async def chat_message(request: ChatRequest):
         market_name=market_config['name'],
         dashboard_url=market_config['dashboard'],
         conversation_id=request.conversation_id
+    )
+
+
+@app.post("/api/chat/research", response_model=ChatResponse)
+async def chat_research(request: ResearchRequest):
+    """Execute Perplexity + Gemini research pipeline (10-15 seconds)."""
+    question = request.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
+
+    language = request.language
+
+    # Stage 1: Perplexity search
+    print(f"[Research] Stage 1 — Perplexity search: {question[:60]}...")
+    search_results = await perplexity_search(question, language)
+    print(f"[Research] Perplexity returned {len(search_results)} chars")
+
+    # Stage 2: Gather internal ETF context
+    internal_context = _gather_internal_context(question)
+    print(f"[Research] Internal context: {len(internal_context)} chars")
+
+    # Stage 3: Gemini synthesis
+    print(f"[Research] Stage 2 — Gemini synthesis...")
+    final_answer = await gemini_synthesize(question, search_results, internal_context, language)
+    print(f"[Research] Gemini returned {len(final_answer)} chars")
+
+    return ChatResponse(
+        response=final_answer,
+        market="etf",
+        market_name="ETF Intelligence",
+        dashboard_url="/etf-intelligence.html",
+        conversation_id=request.conversation_id,
     )
 
 
