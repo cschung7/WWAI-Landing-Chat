@@ -15,8 +15,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 
+from etf_routes import router as etf_router, load_etf_data
+
 # Initialize
 app = FastAPI(title="WWAI Chat API", version="1.0.0")
+
+# Mount ETF Intelligence router
+app.include_router(etf_router)
 
 # CORS
 app.add_middleware(
@@ -45,7 +50,7 @@ MARKETS = {
         "flag": "🇰🇷",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/analysis",
         "keywords": ["한국", "korea", "krx", "kospi", "kosdaq", "코스피", "코스닥"],
-        "dashboard": "http://163.239.155.97:8000"
+        "dashboard": "https://web-production-e5d7.up.railway.app"
     },
     "usa": {
         "name": "USA",
@@ -88,6 +93,15 @@ MARKETS = {
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/analysis",
         "keywords": ["암호화폐", "crypto", "bitcoin", "비트코인", "ethereum", "이더리움", "코인", "defi"],
         "dashboard": "https://wwai-crypto-sector-rotation-production.up.railway.app"
+    },
+    "etf": {
+        "name": "ETF Intelligence",
+        "flag": "📊",
+        "path": None,
+        "keywords": ["etf", "classify", "holdings", "theme", "ticker",
+                      "spy", "qqq", "vti", "agg", "tlt", "gld", "voo",
+                      "future etf", "novel", "etf idea", "etf 테마", "etf 분류"],
+        "dashboard": "/etf-intelligence.html"
     }
 }
 
@@ -300,8 +314,9 @@ class ChatResponse(BaseModel):
 
 @app.on_event("startup")
 async def startup():
-    """Load QA data on startup"""
+    """Load QA data and ETF intelligence on startup"""
     load_all_qa_data()
+    load_etf_data()
 
 
 @app.get("/")

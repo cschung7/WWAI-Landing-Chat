@@ -356,5 +356,87 @@
       "question": "How many tokens passed all quality filters?",
       "answer": "**Answer**: Filtering pipeline summary\n\n| Stage | Count | Pass Rate |\n|-------|-------|-----------|\n| Universe | 1,506 | 100% |\n| BB Crossover (SuperTrend) | 6 | 0.4% |\n| TIER 1 (Aggressive Buy) | 225 | 14.9% |\n| TIER 2 (Accumulate) | 512 | 34.0% |\n| Final Actionable (T1+T2) | 737 | 48.9% |\n\n---\n\n## Questions NOT Answerable (Need Additional Analysis)\n\n| Question | Missing Data | How to Get |\n|----------|--------------|------------|\n| Exact on-chain metrics? | Blockchain data | Use DeFiLlama, Dune |\n| Trading volume analysis? | Volume data | CoinGecko API |\n| Optimal position sizing? | Portfolio constraints | Risk management model |\n| Smart contract risk? | Audit reports | Security audit providers |\n| Exchange liquidity? | Order book data | Exchange APIs |\n| Intraday entry timing? | Tick data | Real-time data feed |\n\n---\n\n## Quick Reference: Data File Locations\n\n| Data | File Path |\n|------|-----------|\n| Actionable tickers | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/actionable_tickers_*.csv` |\n| Consolidated analysis | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/consolidated_ticker_analysis_*.json` |\n| Tier 1 tokens | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/tier1_buy_now_*.csv` |\n| Combined score ranking | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/data/combined_score_ranking_*.csv` |\n| Category mapping | `/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/theme_ticker_master.csv` |\n| Price data | `/mnt/nas/AutoGluon/AutoML_Crypto/CRYPTONOTTRAINED/` |\n\n---\n\n## Dashboard Navigation\n\n| Tab | URL | Key Feature |\n|-----|-----|-------------|\n| Overview | http://localhost:8003/ | Market summary, top categories |\n| Breakout | http://localhost:8003/breakout.html | SuperTrend + Breakout candidates |\n| Signals | http://localhost:8003/signals.html | Quality funnel, TIER breakdown |\n| Cohesion | http://localhost:8003/cohesion.html | Category cohesion analysis |\n| Network | http://localhost:8003/network.html | Category network visualization |\n\n---\n\n*Generated: 2026-02-02*\n*Analysis Framework: Sector-Rotation-Crypto*\n*Dashboard: http://localhost:8003*"
     }
+  ],
+  "etf": [
+    {
+      "question": "What theme is SPY? / SPY 테마는?",
+      "answer": "**SPY** (SPDR S&P 500 ETF Trust)\n- Theme: **Broad Market & Multi-Sector**\n- Confidence: DIVERSIFIED DNA (3 themes, top=Technology & AI at 58%)\n- Category: Large Blend\n- AUM: $627.68B\n- Expense Ratio: 0.09%"
+    },
+    {
+      "question": "What theme is QQQ? / QQQ 테마는?",
+      "answer": "**QQQ** (Invesco QQQ Trust)\n- Theme: **Technology & AI**\n- Confidence: DNA OVERRIDE (Description suggested Fixed Income & Bonds)\n- Category: Large Growth\n- AUM: $328.30B\n- Expense Ratio: 0.20%"
+    },
+    {
+      "question": "What theme is TLT? / TLT 테마는?",
+      "answer": "**TLT** (iShares 20+ Year Treasury Bond ETF)\n- Theme: **Fixed Income & Bonds**\n- Confidence: TOP-DOWN ONLY\n- Category: Long Government\n- AUM: $53.42B"
+    },
+    {
+      "question": "What are the Technology & AI ETFs? / 기술 & AI 테마 ETF는?",
+      "answer": "**Technology & AI** theme has 113 ETFs.\n\nTop 10 by AUM:\n  1. **TRFK** (AUM: $60.6M)\n  2. **RESD** (AUM: N/A)\n  3. **CLOU** (AUM: $379.0M)\n  4. **DSI** (AUM: $4.82B)\n  5. **IETC** (AUM: $456.2M)\n  6. **SHE** (AUM: $259.0M)\n  7. **PSJ** (AUM: $200.3M)\n  8. **XSD** (AUM: $1.36B)\n  9. **NULC** (AUM: $37.4M)\n  10. **PBS** (AUM: $33.2M)"
+    },
+    {
+      "question": "How many themes are there? / 테마 수는?",
+      "answer": "We classify ETFs into **15 master themes**:\n\n  - Broad Market & Multi-Sector: 1243 ETFs\n  - Fixed Income & Bonds: 574 ETFs\n  - Inverse & Leveraged: 313 ETFs\n  - Technology & AI: 113 ETFs\n  - Commodities & Energy: 110 ETFs\n  - Financial Services: 76 ETFs\n  - Real Estate: 72 ETFs\n  - Biotech & Healthcare: 54 ETFs\n  - Consumer & Retail: 54 ETFs\n  - Infrastructure & Industry: 47 ETFs\n  - Dividend & Income: 35 ETFs\n  - Crypto & Digital Assets: 27 ETFs\n  - Strategic Materials: 10 ETFs\n  - Space & Satellite: 8 ETFs\n  - Next-Gen Energy: 4 ETFs"
+    },
+    {
+      "question": "Which theme has the most ETFs? / 가장 많은 ETF 테마는?",
+      "answer": "Top themes by ETF count:\n  1. **Broad Market & Multi-Sector**: 1243 ETFs\n  2. **Fixed Income & Bonds**: 574 ETFs\n  3. **Inverse & Leveraged**: 313 ETFs"
+    },
+    {
+      "question": "What are active ETFs? / 액티브 ETF란?",
+      "answer": "We track **80 curated active ETFs** classified on 3 axes:\n- **Strategy Type**: Income/Yield, Factor/Quant, Thematic/Growth, Core/Broad, etc.\n- **Asset Exposure**: Equity, Fixed Income, Commodity, Multi-Asset\n- **Master Theme**: The primary thematic classification\n\nTop active ETFs by AUM:\n  - **JEPI** (JPMorgan Equity Premium Income ETF): Income/Yield / Equity\n  - **DFAC** (Dimensional U.S. Core Equity 2 ETF): Factor/Quant / Equity\n  - **JPST** (JPMorgan Ultra-Short Income ETF): Income/Yield / Fixed Income\n  - **JEPQ** (JPMorgan NASDAQ Equity Premium Income ET): Income/Yield / Equity\n  - **DYNF** (iShares U.S. Equity Factor Rotation Acti): Factor/Quant / Equity"
+    },
+    {
+      "question": "What stocks are in QQQ? / QQQ 보유 종목은?",
+      "answer": "**QQQ** Top 10 Holdings:\n  1. **AAPL** (Apple Inc): 9.01%\n  2. **MSFT** (Microsoft Corp): 7.79%\n  3. **NVDA** (NVIDIA Corp): 7.42%\n  4. **AMZN** (Amazon.com Inc): 6.31%\n  5. **AVGO** (Broadcom Inc): 4.32%\n  6. **META** (Meta Platforms Inc Class A): 3.79%\n  7. **TSLA** (Tesla Inc): 3.71%\n  8. **GOOGL** (Alphabet Inc Class A): 3.01%\n  9. **GOOG** (Alphabet Inc Class C): 2.87%\n  10. **COST** (Costco Wholesale Corp): 2.7%"
+    },
+    {
+      "question": "What stocks are in SPY? / SPY 보유 종목은?",
+      "answer": "**SPY** Top 10 Holdings:\n  1. **AAPL** (Apple Inc): 6.97%\n  2. **MSFT** (Microsoft Corp): 6.03%\n  3. **NVDA** (NVIDIA Corp): 5.75%\n  4. **AMZN** (Amazon.com Inc): 4.35%\n  5. **META** (Meta Platforms Inc Class A): 2.94%\n  6. **GOOGL** (Alphabet Inc Class A): 2.33%\n  7. **TSLA** (Tesla Inc): 2.21%\n  8. **AVGO** (Broadcom Inc): 2.02%\n  9. **GOOG** (Alphabet Inc Class C): 1.91%\n  10. **BRK-B** (Berkshire Hathaway Inc Class B): 1.68%"
+    },
+    {
+      "question": "Which ETFs hold AAPL? / AAPL 보유 ETF는?",
+      "answer": "**157 ETFs** hold AAPL. Top 10 by weight:\n  - **IXN**: 18.82%\n  - **VGT**: 16.85%\n  - **FTEC**: 16.27%\n  - **IYW**: 15.48%\n  - **JKD**: 15.36%\n  - **XLK**: 14.64%\n  - **HLAL**: 14.52%\n  - **MGK**: 13.24%\n  - **IWY**: 12.61%\n  - **VUG**: 12.37%"
+    },
+    {
+      "question": "Which ETFs hold NVDA? / NVDA 보유 ETF는?",
+      "answer": "**145 ETFs** hold NVDA. Top 10 by weight:\n  - **USD**: 30.09%\n  - **SMH**: 17.91%\n  - **IXN**: 15.54%\n  - **FTEC**: 13.95%\n  - **VGT**: 13.9%\n  - **SFY**: 13.8%\n  - **IYW**: 12.93%\n  - **XLK**: 12.09%\n  - **NULG**: 12.08%\n  - **BOTZ**: 11.3%"
+    },
+    {
+      "question": "How concentrated is QQQ? / QQQ 집중도는?",
+      "answer": "**QQQ Concentration Analysis**:\n- Top 5 holdings: **34.8%** of portfolio\n- Top 10 holdings: **50.9%** of portfolio\n- Total holdings tracked: 10"
+    },
+    {
+      "question": "Which ETF has the most holdings? / 보유 종목 수 최다 ETF는?",
+      "answer": "Top 5 ETFs by holdings count:\n  1. **EEMS** (iShares MSCI Emerging Markets Small-Cap ): 10 holdings\n  2. **EPP** (iShares MSCI Pacific ex Japan ETF): 10 holdings\n  3. **LIT** (Global X Lithium & Battery Tech ETF): 10 holdings\n  4. **VTWV** (Vanguard Russell 2000 Value Index Fund E): 10 holdings\n  5. **IBB** (iShares Biotechnology ETF): 10 holdings"
+    },
+    {
+      "question": "What is the overlap between QQQ and SPY? / QQQ와 SPY 중복 종목은?",
+      "answer": "**9 stocks** appear in both QQQ and SPY top holdings:\n**AAPL**, **AMZN**, **AVGO**, **GOOG**, **GOOGL**, **META**, **MSFT**, **NVDA**, **TSLA**"
+    },
+    {
+      "question": "What frontier themes exist? / 프론티어 테마는?",
+      "answer": "Beyond the 15 core themes, we track **3 frontier themes**:\n  - **AI & Autonomous Systems**\n  - **Cybersecurity & Privacy**\n  - **Infrastructure & Industry**\n\nFrontier themes represent emerging areas not yet captured by dedicated ETFs at scale."
+    },
+    {
+      "question": "What is the Space & Satellite theme? / 우주 & 위성 테마는?",
+      "answer": "**Space & Satellite** has 8 ETFs:\n  - **UFO** (AUM: $58.9M)\n  - **SSK** (AUM: N/A)\n  - **PPA** (AUM: $4.89B)\n  - **AMNA** (AUM: N/A)\n  - **XAR** (AUM: $2.89B)\n  - **FITE** (AUM: $91.5M)\n  - **ROKT** (AUM: $21.2M)\n  - **ITA** (AUM: $6.70B)"
+    },
+    {
+      "question": "What is Strategic Materials? / 전략 소재 테마는?",
+      "answer": "**Strategic Materials** has 10 ETFs:\n  - **OAIB** (AUM: N/A)\n  - **FGDL** (AUM: $116.3M)\n  - **PGMFF** (AUM: N/A)\n  - **REMX** (AUM: $232.3M)\n  - **PICK** (AUM: $759.3M)\n  - **SLX** (AUM: $74.7M)\n  - **CRIT** (AUM: $3.2M)\n  - **GBUG** (AUM: N/A)\n  - **BOM** (AUM: $265,661)\n  - **COPX** (AUM: $2.56B)"
+    },
+    {
+      "question": "Which industries are underserved by ETFs? / ETF가 부족한 산업은?",
+      "answer": "Industries with high stock DNA presence but few dedicated ETFs include:\n  - **Space & Satellite**: Growing interest, limited pure-play ETFs\n  - **Strategic Materials**: Lithium, rare earths — few focused products\n  - **Cybersecurity & Privacy**: Frontier theme with expansion potential\n  - **AI & Autonomous Systems**: Emerging frontier beyond broad Tech & AI"
+    },
+    {
+      "question": "How do I classify my ETF? / ETF 분류 방법은?",
+      "answer": "Use the **ETF Classifier** tab on the dashboard:\n1. Enter one or more tickers (e.g., QQQ, SPY, TLT)\n2. Click **Classify** to see theme, confidence, DNA breakdown\n3. View holdings composition and similar ETFs\n\nOur system uses a 3-layer hybrid approach:\n  - Text similarity (BCE embeddings)\n  - Holdings DNA analysis\n  - Morningstar category mapping"
+    },
+    {
+      "question": "What theme is GLD? / GLD 테마는?",
+      "answer": "**GLD** (SPDR Gold Shares)\n- Theme: **Commodities & Energy**\n- Confidence: CATEGORY OVERRIDE (Commodities Focused)\n- AUM: $78.16B"
+    }
   ]
 }
