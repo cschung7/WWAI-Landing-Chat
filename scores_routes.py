@@ -83,7 +83,7 @@ async def usa_score(ticker: str):
 @router.get("/search")
 async def search_scores(
     q: str = Query(..., min_length=1),
-    market: Optional[str] = Query("all", regex="^(krx|usa|all)$"),
+    market: Optional[str] = Query("all", pattern="^(krx|usa|all)$"),
     limit: int = Query(20, ge=1, le=100),
 ):
     """Search scores by partial name/ticker match."""
@@ -110,7 +110,7 @@ async def search_scores(
 
 @router.get("/bulk")
 async def bulk_scores(
-    market: str = Query(..., regex="^(krx|usa)$"),
+    market: str = Query(..., pattern="^(krx|usa)$"),
     names: str = Query(..., description="Comma-separated names/tickers (max 50)"),
 ):
     """Batch lookup scores for multiple tickers."""
