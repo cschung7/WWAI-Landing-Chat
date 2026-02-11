@@ -55,31 +55,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Classification methodology — embedded for Railway (no NAS access)
-# Source: INDEX-ETF-SAGE/docs/1_Classification_Methodology.md
-CLASSIFICATION_METHODOLOGY = """WWAI classifies 2,740+ US-listed ETFs into 15 master themes using a 3-Layer Hybrid Inference:
-
-Layer 1 — Top-Down (BCE Embeddings): Converts ETF business summaries into 768-dim embeddings \
-(maidalun1020/bce-embedding-base_v1) and measures cosine similarity against theme centroids.
-
-Layer 2 — Bottom-Up (Holdings DNA): Aggregates sector/industry data from each ETF's stock holdings, \
-maps industries to master themes, and applies tiered concentration thresholds \
-(>65% strong override, >50% moderate override, 3+ themes = Broad Market/diversified).
-
-Layer 3 — Category Rescue (Morningstar): Maps 69 Morningstar categories to themes. \
-Definitive categories (Trading--, Commodities, Digital Assets, Global Blend/Value/Growth) always override.
-
-Confidence Signals: HIGH (Validated by DNA) = DNA matches description. \
-DNA OVERRIDE = self-corrected misleading description. \
-CATEGORY OVERRIDE = Morningstar category took precedence. \
-DIVERSIFIED DNA = 3+ themes, no dominant = Broad Market.
-
-15 Master Themes: Broad Market (1,243) | Fixed Income (574) | Inverse & Leveraged (313) | \
-Technology & AI (113) | Commodities & Energy (110) | Financial Services (76) | Real Estate (72) | \
-Biotech & Healthcare (54) | Consumer & Retail (54) | Infrastructure & Industry (47) | \
-Dividend & Income (35) | Crypto & Digital Assets (27) | Strategic Materials (10) | \
-Space & Satellite (8) | Next-Gen Energy (4)"""
-
 # OpenAI client (initialized lazily)
 _openai_client = None
 
@@ -104,7 +79,7 @@ MARKETS = {
         "name": "USA",
         "flag": "🇺🇸",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-USA/analysis",
-        "keywords": ["미국", "usa", "us ", "american", "s&p", "nasdaq", "나스닥", "dow", "nyse"],
+        "keywords": ["미국", "usa", "us ", "american", "s&p", "nasdaq", "dow", "nyse"],
         "dashboard": "https://wwai-usa-sector-rotation-production.up.railway.app"
     },
     "japan": {
@@ -153,9 +128,7 @@ MARKETS = {
                       "next gen", "next-gen", "space", "quantum", "autonomous",
                       "strategic material", "frontier", "first mover",
                       "pioneer", "concept etf", "new etf", "create etf",
-                      "구성종목", "후보", "신규 etf", "차세대",
-                      "분류 방법", "분류 기준", "분류법", "방법론",
-                      "methodology", "classification method"],
+                      "구성종목", "후보", "신규 etf", "차세대"],
         "dashboard": "/etf-intelligence.html"
     }
 }
@@ -223,49 +196,15 @@ def load_qa_file_from_md(filepath: str) -> List[Dict[str, str]]:
 
 
 def detect_market(message: str) -> str:
-    """Detect which market the user is asking about.
-
-    Priority: explicit "etf" keyword wins over other markets to prevent
-    substring collisions (e.g. "crypto ETF" → etf, not crypto).
-    Uses word-boundary-aware matching for short keywords that cause
-    false positives (e.g. "nse" in "defense").
-    """
+    """Detect which market the user is asking about"""
     msg_lower = message.lower()
 
-    # Priority 1: if "etf" appears anywhere, route to ETF market
-    if "etf" in msg_lower:
-        return "etf"
-
-    # Priority 2: check ETF-specific construct keywords (even without "etf" literal)
-    etf_config = MARKETS.get("etf", {})
-    for keyword in etf_config.get("keywords", []):
-        if keyword.lower() in msg_lower:
-            return "etf"
-
-    # Priority 3: score all other markets, pick highest
-    # Short keywords that need word-boundary matching to avoid substring collisions
-    _boundary_keywords = {"nse", "bse", "hk", "us ", "tse"}
-
-    best_market = None
-    best_score = 0
     for market_id, config in MARKETS.items():
-        if market_id == "etf":
-            continue  # Already checked above
-        score = 0
         for keyword in config['keywords']:
-            kw = keyword.lower()
-            if kw in _boundary_keywords:
-                # Word-boundary match: must not be part of a larger word
-                import re
-                if re.search(r'(?<![a-z])' + re.escape(kw) + r'(?![a-z])', msg_lower):
-                    score += 1
-            elif kw in msg_lower:
-                score += 1
-        if score > best_score:
-            best_score = score
-            best_market = market_id
+            if keyword.lower() in msg_lower:
+                return market_id
 
-    return best_market if best_market else "krx"  # Default
+    return "krx"  # Default
 
 
 def find_relevant_qa(market_id: str, question: str) -> Optional[Dict[str, str]]:
@@ -330,15 +269,6 @@ def handle_etf_construct(message: str, language: str) -> Optional[str]:
 
     msg = message.lower()
 
-    # Methodology query → return classification methodology directly (before construct gate)
-    methodology_keywords = [
-        "방법론", "분류 방법", "어떻게 분류", "분류 기준", "분류법",
-        "methodology", "how classify", "how do you classify",
-        "classification method", "how does classification",
-    ]
-    if any(kw in msg for kw in methodology_keywords):
-        return _format_methodology(language)
-
     # Detect if this is a construct/component/candidate query
     construct_keywords = [
         "construct", "component", "candidate", "build etf", "create etf",
@@ -359,16 +289,7 @@ def handle_etf_construct(message: str, language: str) -> Optional[str]:
         "next-gen": "Next-Gen Energy",
         "clean energy": "Next-Gen Energy",
         "renewable": "Next-Gen Energy",
-        "hydrogen": "Next-Gen Energy",
-        "solar": "Next-Gen Energy",
-        "nuclear": "Next-Gen Energy",
-        "uranium": "Next-Gen Energy",
-        "wind energy": "Next-Gen Energy",
         "차세대 에너지": "Next-Gen Energy",
-        "수소": "Next-Gen Energy",
-        "태양광": "Next-Gen Energy",
-        "원자력": "Next-Gen Energy",
-        "풍력": "Next-Gen Energy",
         "space": "Space & Satellite",
         "satellite": "Space & Satellite",
         "aerospace": "Space & Satellite",
@@ -431,25 +352,6 @@ def handle_etf_construct(message: str, language: str) -> Optional[str]:
         "fixed income": "Fixed Income & Bonds",
         "treasury": "Fixed Income & Bonds",
         "채권": "Fixed Income & Bonds",
-        # Broad Market & Multi-Sector (1,243 ETFs — largest theme)
-        "broad market": "Broad Market & Multi-Sector",
-        "total market": "Broad Market & Multi-Sector",
-        "multi-sector": "Broad Market & Multi-Sector",
-        "s&p 500": "Broad Market & Multi-Sector",
-        "종합": "Broad Market & Multi-Sector",
-        "시장 전체": "Broad Market & Multi-Sector",
-        # Additional coverage gaps
-        "blockchain": "Crypto & Digital Assets",
-        "semiconductor": "Technology & AI",
-        "반도체": "Technology & AI",
-        "defense": "Space & Satellite",
-        "방위": "Space & Satellite",
-        "은행": "Financial Services",
-        "보험": "Financial Services",
-        "신재생 에너지": "Next-Gen Energy",
-        "신재생": "Next-Gen Energy",
-        "우주 경제": "Sustainable Space Economy",
-        "지속가능 우주": "Sustainable Space Economy",
     }
 
     # Find matched theme (longer aliases first to avoid substring collisions)
@@ -656,55 +558,6 @@ def _format_first_mover_overview(frontier: dict, language: str) -> str:
         lines.append("\nExplore more on the dashboard: /etf-intelligence.html")
 
     return "\n".join(lines)
-
-
-def _format_methodology(language: str) -> str:
-    """Format classification methodology explanation from embedded doc."""
-    ko = language == "ko"
-    if ko:
-        return (
-            "## 🔬 WWAI ETF 분류 방법론\n\n"
-            "2,740+ 미국 상장 ETF를 **15개 마스터 테마**로 분류하는 **3-Layer 하이브리드 추론** 시스템입니다.\n\n"
-            "### Layer 1 — 탑다운 (BCE 임베딩)\n"
-            "ETF 사업 요약문을 768차원 벡터로 변환 후, 각 테마의 중심(centroid)과 코사인 유사도를 측정합니다.\n"
-            "- 모델: `maidalun1020/bce-embedding-base_v1`\n\n"
-            "### Layer 2 — 바텀업 (보유종목 DNA 분석)\n"
-            "ETF 보유종목의 산업/섹터 데이터를 집계하여 마스터 테마에 매핑합니다.\n"
-            "- 65% 이상 집중 → 강한 오버라이드\n"
-            "- 50% 이상 집중 → 중간 오버라이드\n"
-            "- 3개+ 테마 분산 → Broad Market (다각화)\n\n"
-            "### Layer 3 — 카테고리 레스큐 (Morningstar)\n"
-            "69개 Morningstar 카테고리를 테마에 매핑합니다.\n"
-            "- 결정적 카테고리 (Trading--, Commodities, Digital Assets 등)는 항상 우선 적용\n\n"
-            "### 신뢰도 신호\n"
-            "- **HIGH (DNA 검증)**: DNA와 설명이 일치\n"
-            "- **DNA OVERRIDE**: 오해의 소지가 있는 설명을 자가 수정\n"
-            "- **CATEGORY OVERRIDE**: Morningstar 카테고리가 우선 적용\n"
-            "- **DIVERSIFIED DNA**: 3개+ 테마, 지배적 테마 없음 → Broad Market\n\n"
-            "더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html"
-        )
-    else:
-        return (
-            "## 🔬 WWAI ETF Classification Methodology\n\n"
-            "We classify 2,740+ US-listed ETFs into **15 master themes** using a **3-Layer Hybrid Inference** system.\n\n"
-            "### Layer 1 — Top-Down (BCE Embeddings)\n"
-            "Convert ETF business summaries into 768-dim vectors and measure cosine similarity against theme centroids.\n"
-            "- Model: `maidalun1020/bce-embedding-base_v1`\n\n"
-            "### Layer 2 — Bottom-Up (Holdings DNA Analysis)\n"
-            "Aggregate sector/industry data from each ETF's stock holdings and map to master themes.\n"
-            "- >65% concentration → strong override\n"
-            "- >50% concentration → moderate override\n"
-            "- 3+ themes dispersed → Broad Market (diversified)\n\n"
-            "### Layer 3 — Category Rescue (Morningstar)\n"
-            "Map 69 Morningstar categories to themes.\n"
-            "- Definitive categories (Trading--, Commodities, Digital Assets, etc.) always override\n\n"
-            "### Confidence Signals\n"
-            "- **HIGH (Validated by DNA)**: DNA matches description\n"
-            "- **DNA OVERRIDE**: Self-corrected misleading description\n"
-            "- **CATEGORY OVERRIDE**: Morningstar category took precedence\n"
-            "- **DIVERSIFIED DNA**: 3+ themes, no dominant → Broad Market\n\n"
-            "Explore more on the dashboard: /etf-intelligence.html"
-        )
 
 
 def _format_construct_guidance(frontier: dict, language: str) -> str:
@@ -973,11 +826,10 @@ Synthesize the external research and internal data below to answer the user's qu
 3. If the user asks "existing ETF vs create new", analyze BOTH options clearly
 4. List top 3-5 recommended ETFs with brief one-line explanations
 5. If suggesting new ETF construction, explain what gap it fills and list candidate stocks
-6. If the user asks about classification methodology, explain using the Classification Methodology section above (3-layer hybrid: BCE embeddings + holdings DNA + Morningstar category)
-7. Respond in {lang_text}
-8. Keep response concise (under 350 words)
-9. Use bullet points and **bold** for tickers
-10. End with: "더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html" (Korean) or "Explore more on the dashboard: /etf-intelligence.html" (English)
+6. Respond in {lang_text}
+7. Keep response concise (under 350 words)
+8. Use bullet points and **bold** for tickers
+9. End with: "더 자세한 정보는 대시보드에서 확인하세요: /etf-intelligence.html" (Korean) or "Explore more on the dashboard: /etf-intelligence.html" (English)
 
 Respond now:"""
 
@@ -1040,45 +892,18 @@ def _gather_internal_context(question: str) -> str:
                     f"Expense: {etf.get('expense_ratio')}"
                 )
 
-    # Frontier/lifecycle info — full 선점기회 (first-mover opportunity) data
+    # Frontier/lifecycle info
     frontier = etf_store.get("frontier", {})
     if frontier:
         lifecycle = frontier.get("lifecycle", {})
         pioneer = lifecycle.get("pioneer", [])
         concept = lifecycle.get("concept", [])
-        pre_launch = frontier.get("pre_launch", [])
-        first_mover = frontier.get("first_mover_stocks", [])
-
-        if concept:
-            lines.append("\nConcept Stage (0 ETFs — first-mover opportunity):")
+        if pioneer or concept:
+            lines.append("\nFrontier themes (emerging/new):")
             for item in concept[:5]:
-                cands = item.get("candidate_stocks", [])
-                lines.append(f"  [Concept] {item['theme']} — candidate stocks: {', '.join(cands) if cands else 'none'}")
-                # Add pre-launch description if available
-                for pl in pre_launch:
-                    if pl["theme"] == item["theme"]:
-                        desc = pl.get("description", "")
-                        if desc:
-                            lines.append(f"    Description: {desc}")
-                        break
-
-        if pioneer:
-            lines.append("\nPioneer Stage (1-10 ETFs — early market, blue ocean):")
+                lines.append(f"  [Concept] {item['theme']} ({item['count']} ETFs)")
             for item in pioneer[:5]:
-                tickers = item.get("tickers", [])
-                ticker_strs = [f"{t['ticker']} ({t.get('name', '')}, AUM: {t.get('aum', 'N/A')})" for t in tickers[:5]]
                 lines.append(f"  [Pioneer] {item['theme']} ({item['count']} ETFs)")
-                for ts in ticker_strs:
-                    lines.append(f"    - {ts}")
-
-        if first_mover:
-            lines.append("\nFirst-Mover Key Stocks (appear in multiple pioneer ETFs):")
-            for fm in first_mover[:8]:
-                etfs = ", ".join(fm.get("etfs", [])[:4])
-                lines.append(f"  {fm['ticker']} ({fm.get('name', '')}) — {fm['etf_count']} ETFs, avg weight {fm['avg_weight']}% [{etfs}]")
-
-    # Always include classification methodology for context
-    lines.append(f"\n## Classification Methodology\n{CLASSIFICATION_METHODOLOGY}")
 
     return "\n".join(lines) if lines else "No specific internal data for this query."
 
@@ -1107,20 +932,19 @@ _CONCEPT_MAP = {
     "기후": ["climate", "clean", "solar", "wind"],
     "소비재": ["consumer", "retail"],
     "부동산": ["real estate", "reit"],
-    "골드": ["gold", "precious"],
-    "금 ": ["gold", "precious"],
-    "실버": ["silver"],
+    "금": ["gold", "precious"],
+    "은": ["silver"],
     "농업": ["agriculture", "agri", "farm"],
     "인프라": ["infrastructure"],
     "핀테크": ["fintech"],
     "사이버": ["cyber", "security"],
     "메타버스": ["metaverse", "virtual"],
     "블록체인": ["blockchain", "crypto", "bitcoin"],
-    "ai ": ["artificial intelligence", "machine learning"],
-    "수소": ["hydrogen", "h2 "],
+    "ai": ["artificial intelligence", "machine learning"],
+    "수소": ["hydrogen"],
     "리튬": ["lithium"],
     "원자력": ["nuclear", "uranium"],
-    "물 ": ["water"],
+    "물": ["water"],
 }
 
 
