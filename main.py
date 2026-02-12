@@ -73,42 +73,42 @@ MARKETS = {
         "flag": "🇰🇷",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/analysis",
         "keywords": ["한국", "korea", "krx", "kospi", "kosdaq", "코스피", "코스닥"],
-        "dashboard": "https://krx.wwai.com"
+        "dashboard": "https://krx.wwai.app"
     },
     "usa": {
         "name": "USA",
         "flag": "🇺🇸",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-USA/analysis",
         "keywords": ["미국", "usa", "us ", "american", "s&p", "nasdaq", "dow", "nyse"],
-        "dashboard": "https://usa.wwai.com"
+        "dashboard": "https://usa.wwai.app"
     },
     "japan": {
         "name": "Japan",
         "flag": "🇯🇵",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Japan/analysis",
         "keywords": ["일본", "japan", "nikkei", "topix", "tse", "jpx", "日本"],
-        "dashboard": "https://japan.wwai.com"
+        "dashboard": "https://japan.wwai.app"
     },
     "china": {
         "name": "China",
         "flag": "🇨🇳",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-China/analysis",
         "keywords": ["중국", "china", "chinese", "shanghai", "shenzhen", "sse", "szse", "a주", "中国"],
-        "dashboard": "https://china.wwai.com"
+        "dashboard": "https://china.wwai.app"
     },
     "india": {
         "name": "India",
         "flag": "🇮🇳",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-India/analysis",
         "keywords": ["인도", "india", "indian", "nifty", "sensex", "nse", "bse"],
-        "dashboard": "https://india.wwai.com"
+        "dashboard": "https://india.wwai.app"
     },
     "hongkong": {
         "name": "Hong Kong",
         "flag": "🇭🇰",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Hongkong/analysis",
         "keywords": ["홍콩", "hong kong", "hk", "hkex", "hang seng", "항셍", "香港"],
-        "dashboard": "https://hk.wwai.com"
+        "dashboard": "https://hk.wwai.app"
     },
     "crypto": {
         "name": "Crypto",
