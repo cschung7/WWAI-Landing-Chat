@@ -115,7 +115,7 @@ MARKETS = {
         "flag": "₿",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Crypto/analysis",
         "keywords": ["암호화폐", "crypto", "bitcoin", "비트코인", "ethereum", "이더리움", "코인", "defi"],
-        "dashboard": "https://wwai-crypto-sector-rotation-production.up.railway.app"
+        "dashboard": "https://crypto.wwai.app"
     },
     "etf": {
         "name": "ETF Intelligence",
