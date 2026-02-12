@@ -73,42 +73,42 @@ MARKETS = {
         "flag": "🇰🇷",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-KRX/analysis",
         "keywords": ["한국", "korea", "krx", "kospi", "kosdaq", "코스피", "코스닥"],
-        "dashboard": "https://web-production-e5d7.up.railway.app"
+        "dashboard": "https://krx.wwai.com"
     },
     "usa": {
         "name": "USA",
         "flag": "🇺🇸",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-USA/analysis",
         "keywords": ["미국", "usa", "us ", "american", "s&p", "nasdaq", "dow", "nyse"],
-        "dashboard": "https://wwai-usa-sector-rotation-production.up.railway.app"
+        "dashboard": "https://usa.wwai.com"
     },
     "japan": {
         "name": "Japan",
         "flag": "🇯🇵",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Japan/analysis",
         "keywords": ["일본", "japan", "nikkei", "topix", "tse", "jpx", "日本"],
-        "dashboard": "https://web-production-5e98f.up.railway.app"
+        "dashboard": "https://japan.wwai.com"
     },
     "china": {
         "name": "China",
         "flag": "🇨🇳",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-China/analysis",
         "keywords": ["중국", "china", "chinese", "shanghai", "shenzhen", "sse", "szse", "a주", "中国"],
-        "dashboard": "https://web-production-14009.up.railway.app"
+        "dashboard": "https://china.wwai.com"
     },
     "india": {
         "name": "India",
         "flag": "🇮🇳",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-India/analysis",
         "keywords": ["인도", "india", "indian", "nifty", "sensex", "nse", "bse"],
-        "dashboard": "https://wwai-india-sector-rotation-production.up.railway.app"
+        "dashboard": "https://india.wwai.com"
     },
     "hongkong": {
         "name": "Hong Kong",
         "flag": "🇭🇰",
         "path": "/mnt/nas/WWAI/Sector-Rotation/Sector-Rotation-Hongkong/analysis",
         "keywords": ["홍콩", "hong kong", "hk", "hkex", "hang seng", "항셍", "香港"],
-        "dashboard": "https://backend-production-be465.up.railway.app"
+        "dashboard": "https://hk.wwai.com"
     },
     "crypto": {
         "name": "Crypto",
