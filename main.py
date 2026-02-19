@@ -21,8 +21,10 @@ try:
 except ImportError:
     load_dotenv = None
 
+import urllib.request
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai import OpenAI
 
@@ -987,6 +989,133 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+
+# Static HTML pages from parent landing directory
+_LANDING_DIR = Path(__file__).parent.parent
+
+@app.get("/status.html")
+async def status_page():
+    f = _LANDING_DIR / "status.html"
+    if not f.exists():
+        raise HTTPException(status_code=404, detail="status.html not found")
+    return FileResponse(str(f), media_type="text/html")
+
+
+# ============================================================
+# Status Dashboard API endpoints (proxied from serve.py logic)
+# ============================================================
+
+_NAVER_BASE = Path('/mnt/nas/WWAI/NaverReport')
+_KST = __import__('datetime').timezone(__import__('datetime').timedelta(hours=9))
+
+_REPORT_CATEGORIES = [
+    {'id': 'firm', 'name': 'Firm Analysis', 'ko': '기업분석',
+     'path': _NAVER_BASE / 'NaverReport-FirmAnalysis' / 'reports',
+     'patterns': ['review_ticket_*.json', 'firm_controversial_*.md']},
+    {'id': 'industry', 'name': 'Industry', 'ko': '산업분석',
+     'path': _NAVER_BASE / 'NaverReport-Industry' / 'reports',
+     'patterns': ['review_ticket_*.json', 'daily_briefing_*.md']},
+    {'id': 'strategy', 'name': 'Investment Strategy', 'ko': '투자전략',
+     'path': _NAVER_BASE / 'NaverReport-InvestmentStrategy' / 'reports',
+     'patterns': ['daily_briefing_*.md', 'controversial_*.md']},
+    {'id': 'econ', 'name': 'Econ Analysis', 'ko': '경제분석',
+     'path': _NAVER_BASE / 'NaverReport-EconAnalysis' / 'reports',
+     'patterns': ['review_ticket_*.json', 'controversial_*.md']},
+]
+
+_SERVICES = [
+    {'id': 'hg', 'name': 'HG (Market Structure)', 'port': 8010, 'domain': 'hg.wwai.app'},
+    {'id': 'krx-hg', 'name': 'KRX-HG (시장 구조)', 'port': 8011, 'domain': 'krx-hg.wwai.app'},
+    {'id': 'research', 'name': 'SmartQuery Research', 'port': 8020, 'domain': 'research.wwai.app'},
+    {'id': 'sage', 'name': 'Sage (KRX-ETF API)', 'port': 8013, 'domain': 'sage.wwai.app'},
+    {'id': 'theme', 'name': 'Theme Explorer', 'port': 8030, 'domain': 'theme.wwai.app'},
+    {'id': 'vix', 'name': 'VIX Dashboard', 'port': 8100, 'domain': 'vix.wwai.app'},
+    {'id': 'gnn', 'name': 'GNN Economic Forecast', 'port': 8101, 'domain': 'gnn.wwai.app'},
+    {'id': 'portfolio', 'name': 'SAGE Portfolio', 'port': 8014, 'domain': 'portfolio.wwai.app'},
+    {'id': 'news', 'name': 'News QA (US)', 'port': 8090, 'domain': 'news.wwai.app'},
+    {'id': 'krx-news', 'name': 'News QA (KRX)', 'port': 8092, 'domain': 'krx-news.wwai.app'},
+    {'id': 'gov-press', 'name': 'Gov Press KG (정부 보도자료)', 'port': 8094, 'domain': 'gov.wwai.app'},
+    {'id': 'usa-etf', 'name': 'US Active Thematic Index', 'port': 8017, 'domain': 'usa-etf.wwai.app'},
+]
+
+
+@app.get("/api/naver-report-status")
+async def naver_report_status():
+    now = datetime.now(_KST)
+    results = []
+    for cat in _REPORT_CATEGORIES:
+        info = {'id': cat['id'], 'name': cat['name'], 'ko': cat['ko'],
+                'latest_file': None, 'latest_date': None, 'age_hours': None,
+                'status': 'missing', 'file_count': 0}
+        rpath = cat['path']
+        if not rpath.exists():
+            results.append(info); continue
+        all_files = []
+        for pat in cat['patterns']:
+            all_files.extend(rpath.glob(pat))
+        info['file_count'] = len(all_files)
+        if not all_files:
+            results.append(info); continue
+        latest = max(all_files, key=lambda f: f.stat().st_mtime)
+        mtime = datetime.fromtimestamp(latest.stat().st_mtime, tz=_KST)
+        age_hours = (now - mtime).total_seconds() / 3600
+        info['latest_file'] = latest.name
+        info['latest_date'] = mtime.strftime('%Y-%m-%d')
+        info['age_hours'] = round(age_hours, 1)
+        info['status'] = 'fresh' if age_hours < 26 else ('stale' if age_hours < 72 else 'critical')
+        results.append(info)
+    # Integrated report
+    outputs_path = _NAVER_BASE / 'outputs'
+    integrated = {'latest_report': None, 'latest_date': None, 'age_hours': None}
+    if outputs_path.exists():
+        pdfs = list(outputs_path.glob('NaverReport_Daily_*.pdf'))
+        if pdfs:
+            lp = max(pdfs, key=lambda f: f.stat().st_mtime)
+            mt = datetime.fromtimestamp(lp.stat().st_mtime, tz=_KST)
+            integrated = {'latest_report': lp.name, 'latest_date': mt.strftime('%Y-%m-%d'),
+                          'age_hours': round((now - mt).total_seconds() / 3600, 1)}
+    fresh_count = sum(1 for r in results if r['status'] == 'fresh')
+    total = len(results)
+    return {
+        'timestamp': now.isoformat(), 'categories': results,
+        'integrated_report': integrated,
+        'summary': {'total': total, 'fresh': fresh_count,
+                    'stale': sum(1 for r in results if r['status'] == 'stale'),
+                    'missing': sum(1 for r in results if r['status'] == 'missing'),
+                    'critical': sum(1 for r in results if r['status'] == 'critical')},
+        'overall_status': 'healthy' if fresh_count == total else ('warning' if fresh_count > 0 else 'critical'),
+    }
+
+
+@app.get("/api/services-status")
+async def services_status():
+    results = []
+    for svc in _SERVICES:
+        info = {'id': svc['id'], 'name': svc['name'], 'port': svc['port'],
+                'domain': svc['domain'], 'status': 'offline', 'detail': None}
+        # Skip self-check (port 8091) — if we're responding, we're up
+        if svc['port'] == 8091:
+            info['status'] = 'up'
+            info['detail'] = 'WWAI Chat API'
+            results.append(info)
+            continue
+        try:
+            url = f"http://127.0.0.1:{svc['port']}/"
+            req = urllib.request.Request(url, method='GET')
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                body = resp.read(2048).decode('utf-8', errors='replace')
+                info['status'] = 'up'
+                try:
+                    data = json.loads(body)
+                    info['detail'] = data.get('service') or data.get('message') or data.get('name') or None
+                except Exception:
+                    pass
+        except Exception:
+            info['status'] = 'offline'
+        results.append(info)
+    up_count = sum(1 for r in results if r['status'] == 'up')
+    return {'services': results, 'summary': {'total': len(results), 'up': up_count, 'down': len(results) - up_count}}
 
 
 @app.post("/api/chat/message", response_model=ChatResponse)
