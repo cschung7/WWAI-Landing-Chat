@@ -1034,8 +1034,8 @@ _SERVICES = [
     {'id': 'gnn', 'name': 'GNN Economic Forecast', 'port': 8101, 'domain': 'gnn.wwai.app'},
     {'id': 'portfolio', 'name': 'SAGE Portfolio', 'port': 8014, 'domain': 'portfolio.wwai.app'},
     {'id': 'news', 'name': 'News QA (US)', 'port': 8090, 'domain': 'news.wwai.app'},
-    {'id': 'krx-news', 'name': 'News QA (KRX)', 'port': 8092, 'domain': 'krx-news.wwai.app'},
-    {'id': 'gov-press', 'name': 'Gov Press KG (정부 보도자료)', 'port': 8094, 'domain': 'gov.wwai.app'},
+    {'id': 'krx-news', 'name': 'News QA (KRX)', 'port': 8092, 'domain': 'krx-news.wwai.app', 'path': '/ui'},
+    {'id': 'gov-press', 'name': 'Gov Press KG (정부 보도자료)', 'port': 8094, 'domain': 'gov.wwai.app', 'path': '/ui'},
     {'id': 'usa-etf', 'name': 'US Active Thematic Index', 'port': 8017, 'domain': 'usa-etf.wwai.app'},
 ]
 
@@ -1093,7 +1093,8 @@ async def services_status():
     results = []
     for svc in _SERVICES:
         info = {'id': svc['id'], 'name': svc['name'], 'port': svc['port'],
-                'domain': svc['domain'], 'status': 'offline', 'detail': None}
+                'domain': svc['domain'], 'status': 'offline', 'detail': None,
+                'path': svc.get('path', '/')}
         # Skip self-check (port 8091) — if we're responding, we're up
         if svc['port'] == 8091:
             info['status'] = 'up'
